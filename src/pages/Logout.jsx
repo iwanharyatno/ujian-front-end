@@ -9,15 +9,15 @@ export default function Logout() {
   const [loggedOut, setLoggedOut] = useState(false);
 
   useEffect(() => {
-    if (loggedOut) return;
-
     const doLogout = async () => {
       const response = await Auth.logout();
       if (response.data.status_code === 200) setLoggedOut(true);
       console.log(response);
     }
 
-    doLogout();
+    if (!loggedOut) {
+      doLogout();
+    }
   }, []);
 
   return (
