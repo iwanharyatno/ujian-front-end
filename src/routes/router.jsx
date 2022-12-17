@@ -4,6 +4,8 @@ import Root from '../pages/Root.jsx';
 import Dashboard from '../pages/Dashboard.jsx';
 import Rooms from '../pages/Rooms.jsx';
 
+import AdminRoot from '../pages/admin/Root.jsx';
+
 import ErrorPage from '../pages/ErrorPage.jsx';
 import Login from '../pages/Login.jsx';
 import Logout from '../pages/Logout.jsx';
@@ -31,10 +33,6 @@ export default createBrowserRouter([
             <Dashboard />
           </AuthProtected>
         )
-      },
-      {
-        path: '/rooms/:id',
-        element: <Rooms />
       }
     ]
   },
@@ -49,5 +47,11 @@ export default createBrowserRouter([
         <Logout />
       </AuthProtected>
     )
-  }
+  },
+  {
+    path: '/admin',
+    element: <AdminRoot />,
+    errorElement: <ErrorPage />,
+    children: [],
+  },
 ]);
