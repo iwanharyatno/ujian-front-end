@@ -2,7 +2,6 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import Root from '../pages/Root.jsx';
 import Dashboard from '../pages/Dashboard.jsx';
-import Rooms from '../pages/Rooms.jsx';
 
 import AdminRoot from '../pages/admin/Root.jsx';
 
