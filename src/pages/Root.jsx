@@ -43,7 +43,7 @@ export default function Root() {
             <FontAwesomeIcon icon={faTimesCircle} className="block mx-auto my-12 text-8xl text-red-400"/>
             <p className="text-center mt-3 mx-4 mb-12 text-gray-400">Verifikasi kehadiran gagal.</p>
             <button type="button" className="p-5 bg-white w-full" onClick={() => setScanStatus(null)}>
-              <FontAwesomeIcon icon={faRotateRight} className="block mx-auto my-2 text-blue-400"/>
+              <FontAwesomeIcon icon={faRotateRight} className="block mx-auto my-2 text-primary"/>
               <span className="mb-2">Scan ulang</span>
             </button>
           </>

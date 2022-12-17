@@ -52,7 +52,7 @@ export default function Login() {
   return (
     <div>
       { status?.authenticated ? <Navigate to="/dashboard" replace="true" /> : '' }
-      <div className="flex-col w-full pb-24 pt-14 text-center bg-gradient-to-tr from-blue-400 to-green-400 text-white">
+      <div className="flex-col w-full pb-24 pt-14 text-center bg-gradient-to-tr from-primary to-green-400 text-white">
         <FontAwesomeIcon icon={faUser} className="text-5xl mb-2"/>
         <h2 className="text-2xl">Selamat Datang</h2>
       </div>

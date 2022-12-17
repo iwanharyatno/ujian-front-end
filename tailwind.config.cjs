@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -5,7 +7,16 @@ module.exports = {
     "./src/**/*.{js,jsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      gridTemplateRows: {
+        admin: 'auto 1fr',
+      },
+      colors: {
+        primary: colors.blue[400],
+        'primary-dark': colors.blue[500],
+        'primary-admin': colors.sky[500]
+      }
+    },
   },
   plugins: [],
 }

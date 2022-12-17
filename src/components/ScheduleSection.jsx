@@ -6,9 +6,9 @@ export default function ScheduleSection({ forClass, children, onClose, ...rest }
   return (
     <section {...rest}>
       <div className="flex items-center p-5 mb-5">
-        <FontAwesomeIcon className="text-blue-400 mr-5" icon={faCalendarPlus} />
+        <FontAwesomeIcon className="text-primary mr-5" icon={faCalendarPlus} />
         <h2 className="font-bold flex-grow">Jadwal Ujian</h2>
-        <button className="text-blue-400 px-3 py-2 md:hidden focus:ring focus:ring-blue-200" onClick={onClose}>
+        <button className="text-primary px-3 py-2 md:hidden focus:ring focus:ring-blue-200" onClick={onClose}>
           <FontAwesomeIcon icon={faTimes} />
         </button>
       </div>
