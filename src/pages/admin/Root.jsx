@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -12,6 +12,45 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function AdminRoot() {
+  const navLinks = [
+    {
+      path: '/admin/students',
+      text: 'Daftar Siswa',
+      icon: faPeopleGroup,
+    },
+    {
+      path: '/admin/nominations',
+      text: 'Nominasi Peserta',
+      icon: faPeopleRoof,
+    },
+    {
+      path: '/admin/rooms',
+      text: 'Daftar Ruangan',
+      icon: faDoorClosed,
+    },
+    {
+      path: '/admin/print',
+      text: 'Cetak Kartu',
+      icon: faPrint,
+    },
+    {
+      path: '/admin/schedule',
+      text: 'Atur Jadwal',
+      icon: faCalendarPlus,
+    },
+  ];
+
+  const generateNavLinkClasses = ({ isActive, isPending }) => {
+    const baseClasses = 'flex items-center p-4 transition-transform hover:translate-x-3';
+    if (isActive) {
+      return `${baseClasses} bg-primary-fade`;
+    }
+    if (isPending) {
+      return `${baseClasses} italic`;
+    }
+    return baseClasses;
+  };
+
   return (
     <div className="fixed w-full h-full grid grid-cols-12 grid-rows-admin">
       <header className="col-span-12 flex justify-between items-center p-5 bg-primary-admin text-white">
@@ -28,40 +67,19 @@ export default function AdminRoot() {
         </div>
         <nav>
           <ul>
-            <li>
-              <NavLink className="flex items-center p-4" to="/admin/siswa">
-                <FontAwesomeIcon className="text-primary-admin mx-4" icon={faPeopleGroup} />
-                <span className="font-bold">Daftar Siswa</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink className="flex items-center p-4" to="/admin/nominasi">
-                <FontAwesomeIcon className="text-primary-admin mx-4" icon={faPeopleRoof} />
-                <span className="font-bold">Nominasi Peserta</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink className="flex items-center p-4" to="/admin/ruangan">
-                <FontAwesomeIcon className="text-primary-admin mx-4" icon={faDoorClosed} />
-                <span className="font-bold">Daftar Ruangan</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink className="flex items-center p-4" to="/admin/print">
-                <FontAwesomeIcon className="text-primary-admin mx-4" icon={faPrint} />
-                <span className="font-bold">Print Kartu</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink className="flex items-center p-4" to="/admin/jadwal">
-                <FontAwesomeIcon className="text-primary-admin mx-4" icon={faCalendarPlus} />
-                <span className="font-bold">Atur Jadwal</span>
-              </NavLink>
-            </li>
+            {navLinks.map((navLink) => (
+              <li>
+                <NavLink className={generateNavLinkClasses} to={navLink.path}>
+                  <FontAwesomeIcon className="text-primary-admin mx-4" icon={navLink.icon} />
+                  <span className="font-bold">{navLink.text}</span>
+                </NavLink>
+              </li>
+            ))}
           </ul>
         </nav>
       </aside>
       <main className="col-span-9 bg-gray-200">
+        <Outlet />
       </main>
     </div>
   );
