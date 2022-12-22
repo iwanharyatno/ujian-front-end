@@ -12,7 +12,7 @@ export function PaginatedTable({ data, headings, visibleKeys, onEdit, onDelete }
   const [currentPage, setCurrent] = useState(0);
   const pageIntervals = generateIntervals(data.length, 25);
 
-  const currentInterval = pageIntervals[currentPage];
+  const currentInterval = pageIntervals[currentPage] || pageIntervals[0];
 
   return (
     <>
