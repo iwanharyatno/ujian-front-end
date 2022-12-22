@@ -9,10 +9,18 @@ import {
   faDoorClosed,
   faPrint,
   faCalendarPlus,
+  faSchool,
 } from '@fortawesome/free-solid-svg-icons';
+
+import AppConfig from '../../config/app.js';
 
 export default function AdminRoot() {
   const navLinks = [
+    {
+      path: '/admin/classes',
+      text: 'Daftar Kelas',
+      icon: faSchool,
+    },
     {
       path: '/admin/students',
       text: 'Daftar Siswa',
@@ -78,7 +86,7 @@ export default function AdminRoot() {
           </ul>
         </nav>
       </aside>
-      <main className="col-span-9 bg-gray-200">
+      <main className="col-span-9 bg-gray-200 overflow-scroll">
         <Outlet />
       </main>
     </div>

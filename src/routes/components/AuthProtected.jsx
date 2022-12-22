@@ -2,13 +2,18 @@ import { Navigate } from 'react-router-dom';
 
 import Auth from '../../api/auth.js';
 
-export default function AuthProtected({ children }) {
-  const isAuthenticated = !!Auth.getUser();
+export default function AuthProtected({ children, admin, redirect }) {
+  const user = Auth.getUser();
+  let isAllowed = !!user;
 
-  return ( isAuthenticated 
+  if (user && admin) {
+    isAllowed = user.is_admin;
+  }
+
+  return ( isAllowed
     ? children
     : (
-      <Navigate to="/login" />
+      <Navigate to={redirect || '/login'} />
     )
   );
 }
