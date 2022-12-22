@@ -9,6 +9,8 @@ import {
   faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
+import Student from '../../api/student.js';
+
 import SearchInput from '../../components/SearchInput.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
 
@@ -21,6 +23,14 @@ import {
 export default function Students() {
   useEffect(() => {
     document.title = 'Admin | Daftar Siswa';
+
+    const fetchData = async () => {
+      const result = await Student.getAll();
+
+      console.log(result);
+    };
+
+    fetchData();
   }, []);
 
   return (
