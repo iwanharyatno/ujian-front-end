@@ -42,8 +42,12 @@ export default function Kelas() {
     document.title = 'Admin | Daftar Kelas';
 
     const fetchData = async () => {
-      const result = await KelasAPI.getAll();
-      setClasses(result);
+      try {
+        const result = await KelasAPI.getAll();
+        setClasses(result);
+      } catch (err) {
+        console.log(err);
+      }
     };
 
     fetchData();

@@ -68,7 +68,7 @@ export default function AdminRoot() {
           <span>Logout</span>
         </NavLink>
       </header>
-      <aside className="col-span-3">
+      <aside className="col-span-12 md:col-span-3 hidden md:block">
         <div className="flex justify-center h-48 px-5 items-center border-b-4">
           <FontAwesomeIcon className="text-primary-admin mr-4 text-4xl" icon={faUserCircle} />
           <span className="text-3xl font-medium">Admin</span>
@@ -86,7 +86,7 @@ export default function AdminRoot() {
           </ul>
         </nav>
       </aside>
-      <main className="col-span-9 bg-gray-200 overflow-scroll">
+      <main className="col-span-12 md:col-span-9 bg-gray-200 overflow-scroll">
         <Outlet />
       </main>
     </div>
