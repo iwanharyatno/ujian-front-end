@@ -69,22 +69,22 @@ export default function Dashboard() {
 
       <ScheduleSection forClass="XII RPL 1" className={'fixed md:static top-0 left-0 w-full md:w-auto h-full md:h-[32rem] bg-white md:bg-gray-100/50 md:ml-8 md:rounded-2xl md:border-4 overflow-scroll pb-5 ' + (openSchedule ? '' : 'hidden md:block')} onClose={() => setOpenSchedule(false)}>
         <ScheduleOneDay date="2022-11-14">
-          <ScheduleSubject time="07.30 - 09.00" subject="Pendidikan Agama Islam" color="bg-yellow-400" />
-          <ScheduleSubject time="09.30 - 11.00" subject="Bahasa Jawa" color="bg-primary" />
-          <ScheduleSubject time="12.30 - 14.00" subject="Basis Data" color="bg-green-400" />
+          <ScheduleSubject time="07.30 - 09.00" subject="Pendidikan Agama Islam" color="bg-yellow-400" state="attended" />
+          <ScheduleSubject time="09.30 - 11.00" subject="Bahasa Jawa" color="bg-primary" state="attended" />
+          <ScheduleSubject time="12.30 - 14.00" subject="Basis Data" color="bg-green-400" state="attended" />
         </ScheduleOneDay>
         <ScheduleOneDay date="2022-11-15">
-          <ScheduleSubject time="07.30 - 09.00" subject="Pendidikan Pancasila dan Kewarganegaraan" color="bg-yellow-400" />
-          <ScheduleSubject time="09.30 - 11.00" subject="Bahasa Indonesia" color="bg-primary" />
-          <ScheduleSubject time="12.30 - 14.00" subject="Produk Kreatif dan Kewirausahaan" color="bg-green-400" />
+          <ScheduleSubject time="07.30 - 09.00" subject="Pendidikan Pancasila dan Kewarganegaraan" color="bg-yellow-400" state="skipped" />
+          <ScheduleSubject time="09.30 - 11.00" subject="Bahasa Indonesia" color="bg-primary" state="attended" />
+          <ScheduleSubject time="12.30 - 14.00" subject="Produk Kreatif dan Kewirausahaan" color="bg-green-400" state="attended" />
         </ScheduleOneDay>
         <ScheduleOneDay date="2022-11-16">
-          <ScheduleSubject time="07.30 - 09.00" subject="Matematika" color="bg-yellow-400" />
-          <ScheduleSubject time="09.30 - 11.00" subject="Pemrograman Berorientasi Objek" color="bg-primary" />
+          <ScheduleSubject time="07.30 - 09.00" subject="Matematika" color="bg-yellow-400" state="attended" />
+          <ScheduleSubject time="09.30 - 11.00" subject="Pemrograman Berorientasi Objek" color="bg-primary" state="attended" />
         </ScheduleOneDay>
         <ScheduleOneDay date="2022-11-17">
           <ScheduleSubject time="07.30 - 09.00" subject="Bahasa Inggris" color="bg-yellow-400" />
-          <ScheduleSubject time="09.30 - 11.00" subject="Pemrograman Web dan Perangkat Bergerak" color="bg-primary" />
+          <ScheduleSubject time="09.30 - 11.00" subject="Pemrograman Web dan Perangkat Bergerak" color="bg-primary"  />
         </ScheduleOneDay>
         <ScheduleOneDay date="2022-11-18">
           <ScheduleSubject time="07.30 - 09.00" subject="Bahasa Jepang" color="bg-yellow-400" />
