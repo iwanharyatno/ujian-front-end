@@ -6,10 +6,15 @@ import {
   faFilter,
   faPlusCircle,
   faEdit,
-  faTrash
+  faTrash,
+  faClose,
+  faFileExcel,
 } from '@fortawesome/free-solid-svg-icons';
 
 import Student from '../../api/student.js';
+import { default as KelasAPI } from '../../api/kelas.js';
+
+import { filterDistinct } from '../../utils/common.js';
 
 import SearchInput from '../../components/SearchInput.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
@@ -32,6 +37,7 @@ export default function Students() {
   const [students, setStudents] = useState([]);
   const [query, setQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
   const [formStatus, setFormStatus] = useState(null);
 
   const [formData, setFormData] = useState({});
@@ -72,8 +78,13 @@ export default function Students() {
             <span className="font-medium text-gray-500">Tambah Siswa</span>
           </h2>
       )}>
-        <form onSubmit={submitData}>
+        <form onSubmit={submitData} enctype="application/x-form-data">
           <ModalSegment>
+            <label htmlFor="siswa-xls" className="cursor-pointer mr-2 p-2 rounded-lg bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning-fade">
+              <FontAwesomeIcon icon={faFileExcel} className="mr-4" />
+              Import
+            </label>
+            <input type="file" name="siswa-xls" id="siswa-xls" />
             <div className="mb-4">
               {formStatus === STATUS_FAILED ? (<p className="text-center text-danger italic">Gagal mengirimkan data. Silahkan coba lagi</p>) : ''}
             </div>
@@ -89,8 +100,8 @@ export default function Students() {
                 fullwidth />
             </div>
             <div className="mb-4">
-              <label htmlFor="nama" className="block font-bold mb-2">Nama</label>
-              <Input type="text" name="nama" id="nama" value={formData.nama || ''}
+              <label htmlFor="nis" className="block font-bold mb-2">Nama</label>
+              <Input type="text" name="nis" id="nis" value={formData.nama || ''}
                 onChange={(event) => setFormData({
                   id: formData.id,
                   nis: formData.nis,
@@ -122,7 +133,10 @@ export default function Students() {
       </div>
       <div className="flex gap-4 items-center mb-4">
         <SearchInput onSearch={setQuery}/>
-        <ActionButton text="Filter" icon={faFilter} color="bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning-fade" />
+        <div className="relative">
+          <ActionButton text="Filter" icon={faFilter} color="bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning-fade" onClick={() => setShowFilter(true)} />
+          <FilterMenu show={showFilter} onClose={() => setShowFilter(false)} />
+        </div>
         <ActionButton text="Tambah" icon={faPlusCircle} color="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-fade" onClick={onAdd} />
       </div>
       <PaginatedTable
@@ -130,6 +144,44 @@ export default function Students() {
         headings={['NIS', 'Nama', 'Kelas']}
         visibleKeys={['nis', 'nama', 'kelas']}
         onEdit={console.log} onDelete={console.log} />
+    </div>
+  );
+}
+
+function FilterMenu({ onClose, show }) {
+  const [classes, setClasses] = useState([]);
+
+  useEffect(() => {
+    const fetchKelas = async () => {
+      try {
+        const result = await KelasAPI.getAll();
+        setClasses(result);
+      } catch(err) {
+        console.error('Error!', err);
+      }
+    };
+
+    fetchKelas();
+  }, []);
+
+  return (
+    <div className={'absolute top-100 translate-y-1 w-64 bg-white border-2 border-gray-300 p-4 ' + (show ? 'block' : 'hidden')}>
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-lg">Filter</p>
+        <button onClick={onClose} className="text-lg">
+          <FontAwesomeIcon icon={faClose} />
+        </button>
+      </div>
+      <div>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-2">
+          <option>Kelas</option>
+          {classes.map((kelas) => <option value={kelas.id}>{kelas.namakelas}</option>)}
+        </select>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4">
+          <option>Jurusan</option>
+          {filterDistinct(classes.map((kelas) => kelas.jurusan)).map((jurusan) => <option value={jurusan}>{jurusan}</option>)}
+        </select>
+      </div>
     </div>
   );
 }

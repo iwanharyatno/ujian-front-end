@@ -34,3 +34,14 @@ export function updateData(matcher, data, newDatum) {
 
   return updatedData;
 }
+
+export function filterDistinct(array) {
+  const distinct = [];
+  array.forEach((item) => {
+    if (distinct.indexOf(item) < 0) {
+      distinct.push(item);
+    }
+  });
+
+  return distinct;
+}
