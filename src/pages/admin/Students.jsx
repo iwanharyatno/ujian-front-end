@@ -14,7 +14,7 @@ import {
 import Student from '../../api/student.js';
 import { default as KelasAPI } from '../../api/kelas.js';
 
-import { filterDistinct } from '../../utils/common.js';
+import { filterDistinct, searchData, findData } from '../../utils/common.js';
 
 import SearchInput from '../../components/SearchInput.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
@@ -35,6 +35,7 @@ const STATUS_FAILED = 'status-failed';
 
 export default function Students() {
   const [students, setStudents] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [query, setQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
@@ -43,21 +44,51 @@ export default function Students() {
   const [formData, setFormData] = useState({});
   const [edit, setEdit] = useState(false);
 
-  const displayedData = students;
+  const displayedData = searchData(query, students);
 
   const submitData = async (event) => {
     event.preventDefault();
+
+    setFormStatus(STATUS_PENDING);
+    try {
+      let updatedStudent = [...students];
+      console.log(formData);
+      
+      if (edit) {
+        const res = await Student.update(formData);
+        updatedStudent = updateData(['id', formData.id], classes, formData);
+      } else {
+        const res = await Student.insert(formData);
+        updatedStudent.push(formData);
+      }
+  
+      setStudents(updatedStudent);
+      setShowModal(false);
+      setFormStatus(STATUS_SUCCESS);
+      setFormData({});
+  
+      event.target.reset();
+    } catch (error) {
+      console.error(error);
+      setFormStatus(STATUS_FAILED);
+    }
   };
 
   useEffect(() => {
     document.title = 'Admin | Daftar Siswa';
-
+    let retryTimeout = null;
     const fetchData = async () => {
       try {
-        const result = await Student.getAll();
-        console.log(result);
+        const students = await Student.getAll();
+        const classes = await KelasAPI.getAll();
+
+        if (retryTimeout) clearTimeout(retryTimeout);
+
+        setStudents(students);
+        setClasses(classes);
       } catch (err) {
         console.error(err);
+        retryTimeout = setTimeout(fetchData, 3000);
       }
     };
 
@@ -70,6 +101,14 @@ export default function Students() {
     setShowModal(true);
   };
 
+  const onEdit = (id) => {
+    const studentForEdit = findData(['id', id], students);
+
+    setEdit(true);
+    setFormData(studentForEdit);
+    setShowModal(true);
+  };
+
   return (
     <div className="px-5 py-12">
       <ModalDialog show={showModal} onClose={() => setShowModal(false)} header={(
@@ -78,48 +117,66 @@ export default function Students() {
             <span className="font-medium text-gray-500">Tambah Siswa</span>
           </h2>
       )}>
-        <form onSubmit={submitData} enctype="application/x-form-data">
+        <form onSubmit={submitData}>
           <ModalSegment>
             <label htmlFor="siswa-xls" className="cursor-pointer mr-2 p-2 rounded-lg bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning-fade">
               <FontAwesomeIcon icon={faFileExcel} className="mr-4" />
               Import
             </label>
             <input type="file" name="siswa-xls" id="siswa-xls" />
-            <div className="mb-4">
+            <div className="mb-4 mt-8">
               {formStatus === STATUS_FAILED ? (<p className="text-center text-danger italic">Gagal mengirimkan data. Silahkan coba lagi</p>) : ''}
             </div>
+            <div className="mb-4 grid grid-cols-2 gap-x-4">
+              <div>
+                <label htmlFor="nis" className="block font-bold mb-2">NIS</label>
+                <Input type="number" name="nis" id="nis" value={formData.nis || ''}
+                  onChange={(event) => setFormData({
+                    id: formData.id,
+                    nis: event.target.value,
+                    noabsen: formData.noabsen,
+                    namalengkap: formData.nama,
+                    kelas: formData.kelas
+                  })}
+                  fullwidth />
+              </div>
+              <div>
+                <label htmlFor="noabsen" className="block font-bold mb-2">No Absen</label>
+                <Input type="number" name="noabsen" id="noabsen" value={formData.noabsen || ''}
+                  onChange={(event) => setFormData({
+                    id: formData.id,
+                    nis: formData.nis,
+                    noabsen: event.target.value,
+                    namalengkap: formData.nama,
+                    kelas: formData.kelas
+                  })}
+                  fullwidth />
+              </div>
+            </div>
             <div className="mb-4">
-              <label htmlFor="nama" className="block font-bold mb-2">NIS</label>
-              <Input type="text" name="nama" id="nama" value={formData.nis || ''}
+              <label htmlFor="nama" className="block font-bold mb-2">Nama</label>
+              <Input type="text" name="nama" id="nama" value={formData.namalengkap || ''}
                 onChange={(event) => setFormData({
                   id: formData.id,
-                  nis: event.target.value,
-                  nama: formData.nama,
-                  id_kelas: formData.id_kelas
+                  nis: formData.nis,
+                  noabsen: formData.noabsen,
+                  namalengkap: event.target.value,
+                  kelas: formData.kelas
                 })}
                 fullwidth />
             </div>
             <div className="mb-4">
-              <label htmlFor="nis" className="block font-bold mb-2">Nama</label>
-              <Input type="text" name="nis" id="nis" value={formData.nama || ''}
+              <label htmlFor="kelas" className="block font-bold mb-2">Kelas</label>
+              <select className="px-4 py-3 bg-gray-300 rounded-md outline-none darker-placeholder focus:ring focus:ring-gray-100 w-full" name="kelas" id="kelas" value={formData.kelas || formData.kelas_id || ''}
                 onChange={(event) => setFormData({
                   id: formData.id,
                   nis: formData.nis,
-                  nama: event.target.value,
-                  id_kelas: formData.tingkat
-                })}
-                fullwidth />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="id_kelas" className="block font-bold mb-2">Kelas</label>
-              <Input type="number" name="id_kelas" id="id_kelas" value={formData.id_kelas || ''}
-                onChange={(event) => setFormData({
-                  id: formData.id,
-                  nis: formData.nis,
-                  nama: formData.nama,
-                  id_kelas: event.target.value
-                })}
-                fullwidth />
+                  noabsen: formData.noabsen,
+                  namalengkap: formData.namalengkap,
+                  kelas: event.target.value
+                })}>
+                {classes.map((kelas) => <option value={kelas.id}>{kelas.namakelas}</option>)}
+              </select>
             </div>
           </ModalSegment>
           <ModalSegment>
@@ -141,9 +198,9 @@ export default function Students() {
       </div>
       <PaginatedTable
         data={displayedData}
-        headings={['NIS', 'Nama', 'Kelas']}
-        visibleKeys={['nis', 'nama', 'kelas']}
-        onEdit={console.log} onDelete={console.log} />
+        headings={['NIS', 'Nama', 'Kelas ID']}
+        visibleKeys={['nis', 'namalengkap', 'kelas_id']}
+        onEdit={onEdit} onDelete={console.log} />
     </div>
   );
 }

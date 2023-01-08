@@ -14,7 +14,7 @@ const Kelas = {
   async getAll() {
     const result = await axiosInstance.get(KelasEndpoint.GET_ALL);
 
-    return result.data.data.message;
+    return result.data.data.data_kelas;
   },
 
   async insert(kelas) {

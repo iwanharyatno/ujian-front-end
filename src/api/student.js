@@ -13,7 +13,21 @@ const axiosInstance = axios.create({
 const Student = {
   async getAll() {
     const result = await axiosInstance.get(StudentEndpoint.GET_ALL);
+    return result.data.data.data_siswa;
+  },
+
+  async insert(student) {
+    const result = await axiosInstance.post(StudentEndpoint.POST, student);
     return result;
+  },
+
+  async update(student) {
+    const result = await axiosInstance.post(StudentEndpoint.UPDATE(student.id), student);
+    return result;
+  },
+  
+  async delete(id) {
+    const result = await axiosInstance.get(StudentEndpoint.DELETE(id));
   }
 };
 
