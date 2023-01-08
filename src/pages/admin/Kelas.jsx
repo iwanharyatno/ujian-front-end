@@ -101,7 +101,7 @@ export default function Kelas() {
       <ModalDialog show={showModal} onClose={() => setShowModal(false)} header={(
           <h2 className="text-2xl">
             <FontAwesomeIcon icon={faPlusCircle} className="text-primary-admin mr-4" />
-            <span className="font-medium text-gray-500">This is modal Heading</span>
+            <span className="font-medium text-gray-500">Tambah Kelas</span>
           </h2>
       )}>
         <form onSubmit={submitData}>
