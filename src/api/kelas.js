@@ -27,6 +27,12 @@ const Kelas = {
     const result = await axiosInstance.post(KelasEndpoint.UPDATE(kelas.id), kelas);
 
     return result;
+  },
+
+  async delete(id) {
+    const result = await axiosInstance.get(KelasEndpoint.DELETE(id));
+
+    return result;
   }
 };
 

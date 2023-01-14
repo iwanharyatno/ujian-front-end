@@ -35,6 +35,14 @@ export function updateData(matcher, data, newDatum) {
   return updatedData;
 }
 
+export function deleteData(matcher, data) {
+  const targetIndex = getIndex(matcher, data);
+  const updatedData = [...data];
+  updatedData.splice(targetIndex, 1);
+
+  return updatedData;
+}
+
 export function filterDistinct(array) {
   const distinct = [];
   array.forEach((item) => {

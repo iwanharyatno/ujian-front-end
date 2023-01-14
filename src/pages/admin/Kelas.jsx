@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
  
 import { default as KelasAPI } from '../../api/kelas.js';
-import { searchData, findData, updateData } from '../../utils/common.js';
+import { searchData, findData, updateData, deleteData } from '../../utils/common.js';
 
 import SearchInput from '../../components/SearchInput.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
@@ -96,6 +96,18 @@ export default function Kelas() {
     setShowModal(true);
   };
 
+  const onDelete = async (id) => {
+    const confirmed = confirm('Yakin hapus data ini?');
+
+    if (!confirmed) return;
+
+    const result = await KelasAPI.delete(id);
+    const updatedKelas = [...classes];
+    setClasses(
+      deleteData(['id', id], updatedKelas)
+    );
+  };
+
   return (
     <div className="px-5 py-12">
       <ModalDialog show={showModal} onClose={() => setShowModal(false)} header={(
@@ -160,7 +172,7 @@ export default function Kelas() {
         data={displayedData}
         headings={['Nama', 'Jurusan', 'Tingkat']}
         visibleKeys={['namakelas', 'jurusan', 'tingkat']}
-        onEdit={onEdit} onDelete={console.log} />
+        onEdit={onEdit} onDelete={onDelete} />
     </div>
   );
 }
