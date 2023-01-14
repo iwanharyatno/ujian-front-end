@@ -70,7 +70,7 @@ export default function Dashboard() {
 
       <RoomLayout open={openRoomLayout} onClose={() => setOpenRoomLayout(false)} />
 
-      <ScheduleSection forClass="XII RPL 1" className={'fixed md:static top-0 left-0 w-full md:w-auto h-full md:h-[32rem] bg-white md:bg-gray-100/50 md:ml-8 md:rounded-2xl md:border-4 overflow-scroll pb-5 transition-transform ' + (openSchedule ? 'scale-100' : 'scale-0')} onClose={() => setOpenSchedule(false)}>
+      <ScheduleSection forClass="XII RPL 1" className={'fixed md:static top-0 left-0 w-full md:w-auto h-full md:h-[32rem] bg-white md:bg-gray-100/50 md:ml-8 md:rounded-2xl md:border-4 overflow-scroll pb-5 transition-transform ' + (openSchedule ? 'scale-100' : 'scale-0 md:scale-100')} onClose={() => setOpenSchedule(false)}>
         <ScheduleOneDay date="2022-11-14">
           <ScheduleSubject time="07.30 - 09.00" subject="Pendidikan Agama Islam" color="bg-yellow-400" state="attended" />
           <ScheduleSubject time="09.30 - 11.00" subject="Bahasa Jawa" color="bg-primary" state="attended" />
@@ -151,9 +151,9 @@ function RoomLayout({ open, onClose, tables }) {
   };
 
   return (
-    <div className={'fixed w-full bg-black/50 top-0 left-0 overflow-scroll ' + (open ? 'h-full' : 'h-0')} onClick={backdropClose}>
-      <div id="roomsOffcanvas" className={'flex flex-col py-4 fixed rounded-t-3xl left-0 w-full h-full bg-white transition-transform ' + (open ? 'translate-y-32' : 'translate-y-full')} onClick={handleClick} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-        <div className="p-3 mb-4" onTouchMove={handleTouchMove}>
+    <div className={'z-10 fixed w-full bg-black/50 top-0 left-0 overflow-scroll ' + (open ? 'h-full' : 'h-0')} onClick={backdropClose}>
+      <div id="roomsOffcanvas" className={'flex flex-col py-4 rounded-t-3xl left-0 max-w-lg h-full md:h-auto md:rounded-3xl mx-auto bg-white transition-transform ' + (open ? 'translate-y-32' : 'translate-y-full')} onClick={handleClick} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <div className="p-3 mb-4 md:hidden" onTouchMove={handleTouchMove}>
           <div className="bg-gray-400 h-2 w-1/4 rounded mx-auto"></div>
         </div>
         <div className="overflow-scroll pb-4" onScroll={handleScroll}>
