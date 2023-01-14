@@ -1,5 +1,5 @@
 const AppConfig = {
-  BASE_API_URL: 'https://test.rkhalid.xyz/restapi/api',
+  BASE_API_URL: 'https://appujian.rkhalid.xyz',
   USER_LOGIN: 'user-login',
 };
 
