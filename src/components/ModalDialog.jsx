@@ -27,9 +27,9 @@ export function ModalHeader({ children, onClose, ...rest }) {
   );
 }
 
-export function ModalSegment({ children, ...rest }) {
+export function ModalSegment({ children, className, ...rest }) {
   return (
-    <div className="p-4" {...rest}>
+    <div className={'p-4 ' + className} {...rest}>
       {children}
     </div>
   );

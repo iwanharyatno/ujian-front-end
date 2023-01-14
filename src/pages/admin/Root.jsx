@@ -63,7 +63,7 @@ export default function AdminRoot() {
     <div className="fixed w-full h-full grid grid-cols-12 grid-rows-admin">
       <header className="col-span-12 flex justify-between items-center p-5 bg-primary-admin text-white">
         <h1 className="text-2xl font-bold grow">Dashboard Admin</h1>
-        <NavLink aria-label="Logout" to="/admin/logout" className="flex items-center">
+        <NavLink aria-label="Logout" to="/logout" className="flex items-center">
           <FontAwesomeIcon icon={faSignOutAlt} className="bg-blue-400 text-white p-3 mx-4 flex justify-center items-center rounded-full shadow-xl focus:bg-blue-500 hover:shadow-md"/>
           <span>Logout</span>
         </NavLink>

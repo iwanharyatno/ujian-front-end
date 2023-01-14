@@ -9,10 +9,16 @@ export default function Logout() {
   const [loggedOut, setLoggedOut] = useState(false);
 
   useEffect(() => {
+    let retryTimeout = null;
     const doLogout = async () => {
-      const response = await Auth.logout();
-      if (response.data.status_code === 200) setLoggedOut(true);
-      console.log(response);
+      try {
+        const response = await Auth.logout();
+
+        if (response.data.status_code === 200) setLoggedOut(true);
+        if (retryTimeout) clearTimeout(retryTimeout);
+      } catch(err) {
+        retryTimeout = setTimeout(doLogout, 3000);
+      }
     }
 
     if (!loggedOut) {

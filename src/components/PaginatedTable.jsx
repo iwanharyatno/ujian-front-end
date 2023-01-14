@@ -8,7 +8,7 @@ import {
   faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
-export function PaginatedTable({ data, headings, visibleKeys, onEdit, onDelete }) {
+export function PaginatedTable({ data, headings, visibleKeys, onEdit, onDelete, deleteKey }) {
   const [currentPage, setCurrent] = useState(0);
   const pageIntervals = generateIntervals(data.length, 25);
 
@@ -29,7 +29,7 @@ export function PaginatedTable({ data, headings, visibleKeys, onEdit, onDelete }
                 <button className="mr-5 text-primary-admin hover:text-primary-dark" onClick={() => onEdit(datum.id)}>
                   <FontAwesomeIcon icon={faEdit} />
                 </button>
-                <button className="text-danger hover:text-danger-dark" onClick={() => onDelete(datum.id)}>
+                <button className="text-danger hover:text-danger-dark" onClick={() => onDelete(datum[deleteKey || 'id'])}>
                   <FontAwesomeIcon icon={faTrash} />
                 </button>
               </TableData>

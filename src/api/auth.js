@@ -4,6 +4,8 @@ import Cookies from 'universal-cookie';
 import UserEndpoint from './endpoints/user.js';
 import AppConfig from '../config/app.js';
 
+import getAxios from '../utils/axios-initiator.js';
+
 const cookies = new Cookies();
 
 const DAY_IN_MILLISECONDS = 24 * 3600 * 1000;
@@ -29,22 +31,15 @@ const Auth = {
   },
 
   async logout() {
+    const logoutRequest = await getAxios().get(UserEndpoint.LOGOUT);
+
     const cookieExpire = new Date(
       new Date().getTime() - DAY_IN_MILLISECONDS
     );
-    const userToken = cookies.get(AppConfig.USER_LOGIN).token;
-
     cookies.set(AppConfig.USER_LOGIN, '', {
       path: '/',
       expires: cookieExpire,
     });
-
-    const logoutConfig = {
-      headers: {
-        Authorization: `Bearer ${userToken}`
-      }
-    };
-    const logoutRequest = await axios.post(UserEndpoint.LOGOUT, {}, logoutConfig);
 
     return logoutRequest;
   },

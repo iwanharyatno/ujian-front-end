@@ -14,7 +14,7 @@ import {
 import Student from '../../api/student.js';
 import { default as KelasAPI } from '../../api/kelas.js';
 
-import { filterDistinct, searchData, findData } from '../../utils/common.js';
+import { filterDistinct, searchData, findData, updateData, deleteData } from '../../utils/common.js';
 
 import SearchInput from '../../components/SearchInput.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
@@ -39,7 +39,7 @@ export default function Students() {
   const [query, setQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
-  const [formStatus, setFormStatus] = useState(null);
+  const [formStatus, setFormStatus] = useState({});
 
   const [formData, setFormData] = useState({});
   const [edit, setEdit] = useState(false);
@@ -49,18 +49,24 @@ export default function Students() {
   const submitData = async (event) => {
     event.preventDefault();
 
-    setFormStatus(STATUS_PENDING);
+    setFormStatus({
+      type: STATUS_PENDING
+    });
     try {
       let updatedStudent = [...students];
       
       if (edit) {
-        const res = await Student.update({
+        const adjustedData = {
+          nis: formData.nis,
           id: formData.id,
           namalengkap: formData.namalengkap,
-          kelas: formData.kelas_id,
+          kelas: formData.kelas,
           noabsen: formData.noabsen
-        });
-        updatedStudent = updateData(['id', formData.id], classes, formData);
+        };
+        const result = await Student.update(adjustedData);
+        adjustedData.kelas_id = adjustedData.kelas;
+        adjustedData.user_id = adjustedData.id;
+        updatedStudent = updateData(['user_id', formData.id], updatedStudent, adjustedData);
       } else {
         const res = await Student.insert(formData);
         updatedStudent.push(formData);
@@ -68,13 +74,22 @@ export default function Students() {
   
       setStudents(updatedStudent);
       setShowModal(false);
-      setFormStatus(STATUS_SUCCESS);
+      setFormStatus({
+        type: STATUS_SUCCESS
+      });
       setFormData({});
   
       event.target.reset();
     } catch (error) {
-      console.log(error.response.data.data);
-      setFormStatus(STATUS_FAILED);
+      console.error(error.response);
+      const messages = Object.values(error.response.data.data.message)
+        .map(message => message[0])
+        .join('\n').trim();
+
+      setFormStatus({
+        type: STATUS_FAILED,
+        message: messages
+      });
     }
   };
 
@@ -108,10 +123,25 @@ export default function Students() {
   const onEdit = (id) => {
     const studentForEdit = findData(['id', id], students);
 
+    studentForEdit.kelas = studentForEdit.kelas_id;
+    studentForEdit.id = studentForEdit.user_id;
+
     setEdit(true);
     setFormData(studentForEdit);
     setShowModal(true);
   };
+
+  const onDelete = async (id) => {
+    const confirmed = confirm('Yakin hapus data siswa ini?');
+
+    if (!confirmed) return;
+    await Student.delete(id);
+
+    setStudents(
+      deleteData(['user_id', id], students)
+    );
+  };
+
 
   return (
     <div className="px-5 py-12">
@@ -129,7 +159,7 @@ export default function Students() {
             </label>
             <input type="file" name="siswa-xls" id="siswa-xls" />
             <div className="mb-4 mt-8">
-              {formStatus === STATUS_FAILED ? (<p className="text-center text-danger italic">Gagal mengirimkan data. Silahkan coba lagi</p>) : ''}
+              {formStatus.type === STATUS_FAILED ? (<p className="text-center text-danger italic">{formStatus.message || 'Gagal mengirimkan data. Silahkan coba lagi'}</p>) : ''}
             </div>
             <div className="mb-4 grid grid-cols-2 gap-x-4">
               <div>
@@ -139,7 +169,7 @@ export default function Students() {
                     id: formData.id,
                     nis: event.target.value,
                     noabsen: formData.noabsen,
-                    namalengkap: formData.nama,
+                    namalengkap: formData.namalengkap,
                     kelas: formData.kelas
                   })}
                   fullwidth />
@@ -151,7 +181,7 @@ export default function Students() {
                     id: formData.id,
                     nis: formData.nis,
                     noabsen: event.target.value,
-                    namalengkap: formData.nama,
+                    namalengkap: formData.namalengkap,
                     kelas: formData.kelas
                   })}
                   fullwidth />
@@ -171,7 +201,7 @@ export default function Students() {
             </div>
             <div className="mb-4">
               <label htmlFor="kelas" className="block font-bold mb-2">Kelas</label>
-              <select className="px-4 py-3 bg-gray-300 rounded-md outline-none darker-placeholder focus:ring focus:ring-gray-100 w-full" name="kelas" id="kelas" value={formData.kelas || formData.kelas_id || ''}
+              <select className="px-4 py-3 bg-gray-300 rounded-md outline-none darker-placeholder focus:ring focus:ring-gray-100 w-full" name="kelas" id="kelas" value={formData.kelas || ''}
                 onChange={(event) => setFormData({
                   id: formData.id,
                   nis: formData.nis,
@@ -184,7 +214,7 @@ export default function Students() {
             </div>
           </ModalSegment>
           <ModalSegment>
-            <Button type="submit" className={'bg-primary-admin hover:bg-primary-admin-dark w-full'} text={formStatus === STATUS_PENDING ? 'Mengirim...' : edit ? 'Simpan' : 'Tambah'} disabled={formStatus === STATUS_PENDING} />
+            <Button type="submit" className={'bg-primary-admin hover:bg-primary-admin-dark w-full'} text={formStatus.type === STATUS_PENDING ? 'Mengirim...' : edit ? 'Simpan' : 'Tambah'} disabled={formStatus.type === STATUS_PENDING} />
           </ModalSegment>
         </form>
       </ModalDialog>
@@ -204,7 +234,8 @@ export default function Students() {
         data={displayedData}
         headings={['NIS', 'Nama', 'Kelas ID']}
         visibleKeys={['nis', 'namalengkap', 'kelas_id']}
-        onEdit={onEdit} onDelete={console.log} />
+        deleteKey="user_id"
+        onEdit={onEdit} onDelete={onDelete} />
     </div>
   );
 }

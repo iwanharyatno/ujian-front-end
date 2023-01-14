@@ -77,7 +77,7 @@ export default function Kelas() {
   
       event.target.reset();
     } catch (error) {
-      console.error(error);
+      console.error(error.response);
       setFormStatus(STATUS_FAILED);
     }
   };
