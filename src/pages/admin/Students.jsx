@@ -52,10 +52,14 @@ export default function Students() {
     setFormStatus(STATUS_PENDING);
     try {
       let updatedStudent = [...students];
-      console.log(formData);
       
       if (edit) {
-        const res = await Student.update(formData);
+        const res = await Student.update({
+          id: formData.id,
+          namalengkap: formData.namalengkap,
+          kelas: formData.kelas_id,
+          noabsen: formData.noabsen
+        });
         updatedStudent = updateData(['id', formData.id], classes, formData);
       } else {
         const res = await Student.insert(formData);
@@ -69,7 +73,7 @@ export default function Students() {
   
       event.target.reset();
     } catch (error) {
-      console.error(error);
+      console.log(error.response.data.data);
       setFormStatus(STATUS_FAILED);
     }
   };

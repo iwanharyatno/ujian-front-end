@@ -22,6 +22,8 @@ const Student = {
   },
 
   async update(student) {
+    console.log('update:', StudentEndpoint.UPDATE(student.id));
+    console.table(student);
     const result = await axiosInstance.post(StudentEndpoint.UPDATE(student.id), student);
     return result;
   },

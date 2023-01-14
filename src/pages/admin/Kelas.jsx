@@ -154,7 +154,6 @@ export default function Kelas() {
       </div>
       <div className="flex gap-4 items-center mb-4">
         <SearchInput onSearch={setQuery} />
-        <ActionButton text="Filter" icon={faFilter} color="bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning-fade" />
         <ActionButton text="Tambah" icon={faPlusCircle} color="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-fade" onClick={onAdd} />
       </div>
       <PaginatedTable
