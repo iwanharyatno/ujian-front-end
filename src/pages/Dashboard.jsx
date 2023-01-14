@@ -16,6 +16,7 @@ const cookies = new Cookies();
 
 export default function Dashboard() {
   const [openSchedule, setOpenSchedule] = useState(false);
+  const [openRoomLayout, setOpenRoomLayout] = useState(false);
 
   useEffect(() => {
     document.title = 'UJIANN | Dashboard';
@@ -62,12 +63,14 @@ export default function Dashboard() {
         <h2 className="my-4 font-bold md:hidden">Cek Jadwal dan Denah Ruangan Ujian</h2>
         <div className="flex flex-col lg:flex-row gap-4">
           <CardButton icon={faCalendar} onClick={() => setOpenSchedule(true)} text="Jadwal Ujian" className="w-full md:hidden" />
-          <CardButton icon={faDoorClosed} text="Denah Ruangan" className="w-full" />
+          <CardButton icon={faDoorClosed} onClick={() => setOpenRoomLayout(true)} text="Denah Ruangan" className="w-full" />
           <CardButton icon={faBarcode} text="Absensi Kehadiran" className="w-full invisible lg:visible" />
         </div>
       </section>
 
-      <ScheduleSection forClass="XII RPL 1" className={'fixed md:static top-0 left-0 w-full md:w-auto h-full md:h-[32rem] bg-white md:bg-gray-100/50 md:ml-8 md:rounded-2xl md:border-4 overflow-scroll pb-5 ' + (openSchedule ? '' : 'hidden md:block')} onClose={() => setOpenSchedule(false)}>
+      <RoomLayout open={openRoomLayout} onClose={() => setOpenRoomLayout(false)} />
+
+      <ScheduleSection forClass="XII RPL 1" className={'fixed md:static top-0 left-0 w-full md:w-auto h-full md:h-[32rem] bg-white md:bg-gray-100/50 md:ml-8 md:rounded-2xl md:border-4 overflow-scroll pb-5 transition-transform ' + (openSchedule ? 'scale-100' : 'scale-0')} onClose={() => setOpenSchedule(false)}>
         <ScheduleOneDay date="2022-11-14">
           <ScheduleSubject time="07.30 - 09.00" subject="Pendidikan Agama Islam" color="bg-yellow-400" state="attended" />
           <ScheduleSubject time="09.30 - 11.00" subject="Bahasa Jawa" color="bg-primary" state="attended" />
@@ -90,6 +93,116 @@ export default function Dashboard() {
           <ScheduleSubject time="07.30 - 09.00" subject="Bahasa Jepang" color="bg-yellow-400" />
         </ScheduleOneDay>
       </ScheduleSection>
+    </div>
+  );
+}
+
+function RoomLayout({ open, onClose, tables }) {
+  let scroll = 0;
+  let touchPos = null;
+  let latestTransform = 0;
+  let roomsOffcanvas = document.body;
+
+  useEffect(() => {
+    roomsOffcanvas = document.getElementById('roomsOffcanvas');
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  });
+
+  const handleClick = (event) => event.stopPropagation();
+  const handleScroll = (event) => {
+    scroll = event.target.scrollTop;
+  };
+  const handleTouchStart = (event) => {
+    touchPos = event.touches[0];
+    latestTransform = roomsOffcanvas.style.transform
+      .replace(/[\(\)(px)]/g, ' ').trim()
+      .split(' ')[1] || 0;
+  };
+  const handleTouchMove = (event) => {
+    const touch = event.touches[0];
+    const deltaY = touch.clientY - touchPos.clientY;
+
+    if (deltaY > 200) {
+      roomsOffcanvas.style.transform = null;
+      return;
+    }
+
+    let totalTransform = Number(latestTransform) + deltaY;
+    if (totalTransform < 0) totalTransform = 0;
+
+    roomsOffcanvas.style.transform = `translateY(${totalTransform}px)`;
+  };
+  const handleTouchEnd = (event) => {
+    const endTouchPos = event.changedTouches[0];
+    const distanceY = endTouchPos.clientY - touchPos.clientY;
+
+    if (distanceY > 200 && scroll === 0) {
+      roomsOffcanvas.style.transform = null;
+      onClose();
+    }
+  };
+  const backdropClose = (event) => {
+    roomsOffcanvas.style.transform = null;
+    onClose();
+  };
+
+  return (
+    <div className={'fixed w-full bg-black/50 top-0 left-0 overflow-scroll ' + (open ? 'h-full' : 'h-0')} onClick={backdropClose}>
+      <div id="roomsOffcanvas" className={'flex flex-col py-4 fixed rounded-t-3xl left-0 w-full h-full bg-white transition-transform ' + (open ? 'translate-y-32' : 'translate-y-full')} onClick={handleClick} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <div className="p-3 mb-4" onTouchMove={handleTouchMove}>
+          <div className="bg-gray-400 h-2 w-1/4 rounded mx-auto"></div>
+        </div>
+        <div className="overflow-scroll pb-4" onScroll={handleScroll}>
+          <h2 className="text-center text-2xl font-bold">Ruangan 01</h2>
+          <div className="flex gap-4 mx-12 mt-8 bg-primary text-white p-4 rounded-xl shadow-md">
+            <div>
+              <p className="font-light">Kelas</p>
+              <p className="font-bold">XII RPL 1</p>
+            </div>
+            <div className="grow">
+              <p className="font-light">Code Ruangan</p>
+              <p className="font-bold">C1 01</p>
+            </div>
+            <div>
+              <p className="font-light">Absen</p>
+              <p className="font-bold">1-18</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-4 mt-8 mx-4 gap-5 justify-center">
+            <div></div>
+            <RoomTable labels={['Pengawas']} className="font-bold col-start-2 col-span-2" />
+            <div></div>
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+            <RoomTable labels={['1001', '2001', '3001']} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RoomTable({ labels, className }) {
+  return (
+    <div className={'rounded-lg border shadow-md divide-y text-center ' + className}>
+      {labels.map((label) => <p className="py-2">{label}</p>)}
     </div>
   );
 }
