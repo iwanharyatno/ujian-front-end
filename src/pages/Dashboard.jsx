@@ -10,6 +10,8 @@ import ScheduleSubject from '../components/ScheduleSubject.jsx';
 
 import AppConfig from '../config/app.js';
 
+import RoomLayouts from '../utils/room-layouts.js';
+
 import Cookies from 'universal-cookie';
 
 const cookies = new Cookies();
@@ -23,6 +25,19 @@ export default function Dashboard() {
   });
 
   const studentData = cookies.get(AppConfig.USER_LOGIN);
+
+  const tables = new Array(18).fill(0).map((_, index) => {
+    return [
+      (1001 + index),
+      (2001 + index),
+      (3001 + index)
+    ]
+  });
+  RoomLayouts.init({
+    cols: 4,
+    tables,
+    padFill: [],
+  });
 
   return (
     <div className="md:mx-8 lg:mx-auto max-w-4xl flex flex-col md:flex-row justify-between">
@@ -68,7 +83,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <RoomLayout open={openRoomLayout} onClose={() => setOpenRoomLayout(false)} />
+      <RoomLayout tables={RoomLayouts.snakeX(tables)} open={openRoomLayout} onClose={() => setOpenRoomLayout(false)} />
 
       <ScheduleSection forClass="XII RPL 1" className={'fixed md:static top-0 left-0 w-full md:w-auto h-full md:h-[32rem] bg-white md:bg-gray-100/50 md:ml-8 md:rounded-2xl md:border-4 overflow-scroll pb-5 transition-transform ' + (openSchedule ? 'scale-100' : 'scale-0 md:scale-100')} onClose={() => setOpenSchedule(false)}>
         <ScheduleOneDay date="2022-11-14">
@@ -151,7 +166,7 @@ function RoomLayout({ open, onClose, tables }) {
   };
 
   return (
-    <div className={'z-10 fixed w-full bg-black/50 top-0 left-0 overflow-scroll ' + (open ? 'h-full' : 'h-0')} onClick={backdropClose}>
+    <div className={'z-10 fixed w-full bg-black/50 top-0 left-0 overflow-hidden ' + (open ? 'h-full' : 'h-0')} onClick={backdropClose}>
       <div id="roomsOffcanvas" className={'flex flex-col py-4 rounded-t-3xl left-0 max-w-lg h-full md:h-auto md:rounded-3xl mx-auto bg-white transition-transform ' + (open ? 'translate-y-32' : 'translate-y-full')} onClick={handleClick} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <div className="p-3 mb-4 md:hidden" onTouchMove={handleTouchMove}>
           <div className="bg-gray-400 h-2 w-1/4 rounded mx-auto"></div>
@@ -176,22 +191,7 @@ function RoomLayout({ open, onClose, tables }) {
             <div></div>
             <RoomTable labels={['Pengawas']} className="font-bold col-start-2 col-span-2" />
             <div></div>
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
-            <RoomTable labels={['1001', '2001', '3001']} />
+            {tables.map((table) => <RoomTable labels={table} /> )}
           </div>
         </div>
       </div>
