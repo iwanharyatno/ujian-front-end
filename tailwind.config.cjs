@@ -19,9 +19,12 @@ module.exports = {
         'warning-dark': colors.yellow[500],
         'primary-fade': colors.blue[200],
         'primary-dark': colors.blue[500],
+        'success-fade': colors.green[400],
         'danger-dark': colors.red[500],
         'primary-admin': colors.sky[500],
         'primary-admin-dark': colors.sky[700],
+        'success-admin': colors.green[600],
+        'success-admin-dark': colors.green[800],
       }
     },
   },

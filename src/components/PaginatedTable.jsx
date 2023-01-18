@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -8,22 +8,69 @@ import {
   faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
-export function PaginatedTable({ data, headings, visibleKeys, onEdit, onDelete, deleteKey }) {
+export function PaginatedTable({ data, headings, visibleKeys, onEdit, onDelete, deleteKey, selectable, onSelectionChange }) {
   const [currentPage, setCurrent] = useState(0);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedItems, setSelectedItems] = useState(new Set());
   const pageIntervals = generateIntervals(data.length, 25);
 
   const currentInterval = pageIntervals[currentPage] || pageIntervals[0];
+  const visibleData = data.length ? data.slice(...currentInterval) : [];
+
+  const handleCheckChange = (event) => {
+    const updated = new Set(selectedItems);
+    const newId = Number(event.target.value);
+
+    if (updated.has(newId)) {
+      updated.delete(newId);
+      if (selectAll) setSelectAll(false);
+    } else {
+      updated.add(newId);
+    }
+
+    setSelectedItems(updated);
+  };
+
+  const handleSelectAll = (event) => {
+    setSelectAll(!selectAll);
+    if (event.target.checked) {
+      setSelectedItems(new Set(
+        [...visibleData.map((datum) => datum.id)]
+      ));
+      return;
+    }
+
+    setSelectedItems(new Set());
+  };
+
+  const shouldChecked = (datumId) => {
+    if (selectAll) {
+      if (!selectedItems.has(datumId)) return false;
+      return true;
+    }
+    if (selectedItems.has(datumId)) return true;
+    return false;
+  };
+  useEffect(() => {
+    if (onSelectionChange) onSelectionChange([...selectedItems]);
+  });
 
   return (
     <>
       <table className="p-2 bg-white border-x-2 border-t-2 border-gray-300 w-full">
         <thead>
+          {selectable && <TableHeading>
+              <input type="checkbox" id="check-all" checked={selectAll} onChange={handleSelectAll} />
+            </TableHeading>}
           {headings.map((heading) => <TableHeading>{heading}</TableHeading>)}
           <TableHeading>Aksi</TableHeading>
         </thead>
         <tbody>
-          {data.length ? data.slice(...currentInterval).map((datum) => (
+          {visibleData.map((datum) => (
             <tr>
+              {selectable && <TableData>
+                <input type="checkbox" name="student_ids" value={datum.id} checked={shouldChecked(datum.id)} onChange={handleCheckChange} />
+              </TableData>}
               {visibleKeys.map((visibleKey) => <TableData>{datum[visibleKey]}</TableData>)}
               <TableData>
                 <button className="mr-5 text-primary-admin hover:text-primary-dark" onClick={() => onEdit(datum.id)}>
@@ -34,7 +81,7 @@ export function PaginatedTable({ data, headings, visibleKeys, onEdit, onDelete, 
                 </button>
               </TableData>
             </tr>
-          )) : ''}
+          ))}
         </tbody>
       </table>
       <PaginationFooter activePageIndex={currentPage} pagesCount={pageIntervals.length} pageChange={setCurrent} />

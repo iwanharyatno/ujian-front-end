@@ -11,6 +11,7 @@ import Nominations from '../pages/admin/Nominations.jsx';
 import Rooms from '../pages/admin/Rooms.jsx';
 import Print from '../pages/admin/Print.jsx';
 import Schedule from '../pages/admin/Schedule.jsx';
+import Agenda from '../pages/admin/Agenda.jsx';
 
 import ErrorPage from '../pages/ErrorPage.jsx';
 import Login from '../pages/Login.jsx';
@@ -90,6 +91,10 @@ export default createBrowserRouter([
       {
         path: '/admin/schedule',
         element: <Schedule />
+      },
+      {
+        path: '/admin/agenda',
+        element: <Agenda />
       },
     ],
   },

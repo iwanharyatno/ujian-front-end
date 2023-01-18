@@ -9,6 +9,7 @@ import {
   faTrash,
   faClose,
   faFileExcel,
+  faPersonCircleCheck,
 } from '@fortawesome/free-solid-svg-icons';
 
 import Student from '../../api/student.js';
@@ -39,7 +40,9 @@ export default function Students() {
   const [query, setQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
+  const [showSelectedOption, setShowSelectedOption] = useState(false);
   const [formStatus, setFormStatus] = useState({});
+  const [selectedItems, setSelectedItems] = useState([]);
 
   const [formData, setFormData] = useState({});
   const [edit, setEdit] = useState(false);
@@ -81,7 +84,6 @@ export default function Students() {
   
       event.target.reset();
     } catch (error) {
-      console.error(error.response);
       const messages = Object.values(error.response.data.data.message)
         .map(message => message[0])
         .join('\n').trim();
@@ -114,6 +116,10 @@ export default function Students() {
     fetchData();
   }, []);
 
+  const onSelectionChange = (items) => {
+    setSelectedItems([...items]);
+  };
+
   const onAdd = () => {
     setEdit(false);
     setFormData({});
@@ -142,6 +148,10 @@ export default function Students() {
     );
   };
 
+  const sendNominationsData = () => {
+    if (selectedItems.length === 0) return;
+    alert(`Mengirimkan ${[...selectedItems]} `);
+  };
 
   return (
     <div className="px-5 py-12">
@@ -229,13 +239,29 @@ export default function Students() {
           <FilterMenu show={showFilter} onClose={() => setShowFilter(false)} />
         </div>
         <ActionButton text="Tambah" icon={faPlusCircle} color="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-fade" onClick={onAdd} />
+        <div className={'relative ' + (selectedItems.length !== 0 ? '' : 'hidden')}>
+          <ActionButton text="Yang Dipilih..." icon={faPersonCircleCheck} color="bg-success-admin text-white hover:bg-success-admin-dark focus:ring focus:ring-success-admin" onClick={() => setShowSelectedOption(!showSelectedOption)} />
+          <DropdownOptions show={showSelectedOption} options={[
+            <button className="hover:bg-gray-300 p-3 focus:ring focus:ring-primary-fade" onClick={sendNominationsData} key={1}>Tambah ke Nominasi</button>
+          ]} />
+        </div>
       </div>
       <PaginatedTable
         data={displayedData}
         headings={['NIS', 'Nama', 'Kelas ID']}
-        visibleKeys={['nis', 'namalengkap', 'kelas_id']}
+        visibleKeys={['nis', 'namalengkap', 'kelas']}
         deleteKey="user_id"
+        selectable={true}
+        onSelectionChange={onSelectionChange}
         onEdit={onEdit} onDelete={onDelete} />
+    </div>
+  );
+}
+
+function DropdownOptions({ show, options }) {
+  return (
+    <div className={'absolute top-100 w-max translate-y-1 bg-white border-2 border-gray-300 ' + (show ? 'block' : 'hidden')}>
+      {options}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   faPrint,
   faCalendarPlus,
   faSchool,
+  faBookOpen,
 } from '@fortawesome/free-solid-svg-icons';
 
 import AppConfig from '../../config/app.js';
@@ -38,13 +39,18 @@ export default function AdminRoot() {
     },
     {
       path: '/admin/print',
-      text: 'Cetak Kartu',
+      text: 'Cetak Nomor Meja',
       icon: faPrint,
     },
     {
       path: '/admin/schedule',
       text: 'Atur Jadwal',
       icon: faCalendarPlus,
+    },
+    {
+      path: '/admin/agenda',
+      text: 'Berita Acara',
+      icon: faBookOpen,
     },
   ];
 
