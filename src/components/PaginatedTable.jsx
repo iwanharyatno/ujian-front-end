@@ -8,11 +8,15 @@ import {
   faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
-export function PaginatedTable({ data, headings, visibleKeys, onEdit, onDelete, deleteKey, selectable, onSelectionChange }) {
+export function PaginatedTable({
+  data, headings, visibleKeys,
+  onEdit, onDelete, deleteKey,
+  selectable, onSelectionChange, maxRows
+}) {
   const [currentPage, setCurrent] = useState(0);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedItems, setSelectedItems] = useState(new Set());
-  const pageIntervals = generateIntervals(data.length, 25);
+  const pageIntervals = generateIntervals(data.length, maxRows || 25);
 
   const currentInterval = pageIntervals[currentPage] || pageIntervals[0];
   const visibleData = data.length ? data.slice(...currentInterval) : [];
@@ -35,7 +39,7 @@ export function PaginatedTable({ data, headings, visibleKeys, onEdit, onDelete, 
     setSelectAll(!selectAll);
     if (event.target.checked) {
       setSelectedItems(new Set(
-        [...visibleData.map((datum) => datum.id)]
+        [...data.map((datum) => datum.id)]
       ));
       return;
     }
