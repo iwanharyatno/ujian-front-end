@@ -57,7 +57,7 @@ export function PaginatedTable({
   };
   useEffect(() => {
     if (onSelectionChange) onSelectionChange([...selectedItems]);
-  });
+  }, [selectedItems]);
 
   return (
     <>

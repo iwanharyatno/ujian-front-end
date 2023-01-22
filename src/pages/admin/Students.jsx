@@ -44,10 +44,23 @@ export default function Students() {
   const [formStatus, setFormStatus] = useState({});
   const [selectedItems, setSelectedItems] = useState([]);
 
+  const [filters, setFilters] = useState([]);
+
   const [formData, setFormData] = useState({});
   const [edit, setEdit] = useState(false);
 
-  const displayedData = searchData(query, students);
+  const filterStudents = (source) => {
+    let filtered = [...source];
+    filters.forEach((matcher) => {
+      if (!matcher) return;
+      const [key, value] = matcher;
+      filtered = filtered.filter((datum) => datum[key] == value);
+    });
+
+    return filtered;
+  };
+
+  const displayedData = searchData(query, filterStudents(students));
 
   const submitData = async (event) => {
     event.preventDefault();
@@ -236,7 +249,7 @@ export default function Students() {
         <SearchInput onSearch={setQuery}/>
         <div className="relative">
           <ActionButton text="Filter" icon={faFilter} color="bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning-fade" onClick={() => setShowFilter(true)} />
-          <FilterMenu show={showFilter} onClose={() => setShowFilter(false)} />
+          <FilterMenu show={showFilter} onClose={() => setShowFilter(false)} onChange={(matchers) => setFilters(matchers)} />
         </div>
         <ActionButton text="Tambah" icon={faPlusCircle} color="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-fade" onClick={onAdd} />
         <div className={'relative ' + (selectedItems.length !== 0 ? '' : 'hidden')}>
@@ -249,7 +262,7 @@ export default function Students() {
       <PaginatedTable
         data={displayedData}
         headings={['NIS', 'Nama', 'Kelas ID']}
-        visibleKeys={['nis', 'namalengkap', 'kelas']}
+        visibleKeys={['nis', 'namalengkap', 'kelas_id']}
         deleteKey="user_id"
         selectable={true}
         onSelectionChange={onSelectionChange}
@@ -266,8 +279,9 @@ function DropdownOptions({ show, options }) {
   );
 }
 
-function FilterMenu({ onClose, show }) {
+function FilterMenu({ onClose, show, onChange }) {
   const [classes, setClasses] = useState([]);
+  const [macthers, setMatchers] = useState(new Array(2));
 
   useEffect(() => {
     const fetchKelas = async () => {
@@ -282,6 +296,15 @@ function FilterMenu({ onClose, show }) {
     fetchKelas();
   }, []);
 
+  const updateMatchers = (index, matcher) => {
+    const updatedMatchers = [...macthers];
+    updatedMatchers[index] = matcher[1] ? matcher : null;
+
+    setMatchers(updatedMatchers);
+
+    if (onChange) onChange(updatedMatchers);
+  };
+
   return (
     <div className={'absolute top-100 translate-y-1 w-64 bg-white border-2 border-gray-300 p-4 ' + (show ? 'block' : 'hidden')}>
       <div className="flex justify-between items-center mb-4">
@@ -291,12 +314,12 @@ function FilterMenu({ onClose, show }) {
         </button>
       </div>
       <div>
-        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-2">
-          <option>Kelas</option>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-2" onChange={() => updateMatchers(0, ['kelas_id', event.target.value])}>
+          <option value="">Kelas</option>
           {classes.map((kelas) => <option value={kelas.id}>{kelas.namakelas}</option>)}
         </select>
-        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4">
-          <option>Jurusan</option>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4" onChange={() => updateMatchers(1, ['jurusan', event.target.value])}>
+          <option value="">Jurusan</option>
           {filterDistinct(classes.map((kelas) => kelas.jurusan)).map((jurusan) => <option value={jurusan}>{jurusan}</option>)}
         </select>
       </div>
