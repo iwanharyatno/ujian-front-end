@@ -20,7 +20,10 @@ export default function Print() {
   const [classId, setClassId] = useState(1);
   const [indexRange, setIndexRange] = useState([1, 12]);
   const [format, setFormat] = useState('A4');
-  const [visibleSize, setVisibleSize] = useState({});
+  const [visibleSize, setVisibleSize] = useState({
+    width: 0,
+    height: 0
+  });
 
   const paperSizes = [
     {
@@ -45,17 +48,16 @@ export default function Print() {
     const size = findData(['name', format], paperSizes);
     const aspect = size.height / size.width;
 
-    const printPaper = document.querySelector('#printPaper');
-    const width = printPaper.clientWidth;
+    const printPapers = document.querySelectorAll('.printPaper');
+    const width = printPapers[0].clientWidth;
     const height = aspect * width;
 
-    printPaper.style.height = height + 'px';
+    for (let i = 0; i < printPapers.length; i++) {
+      const printPaper = printPapers[i];
+      printPaper.style.height = height + 'px';
+    }
 
-    setVisibleSize({ width, height });
-  };
-
-  const downloadPDF = () => {
-    window.print();
+    if (visibleSize.width !== width && visibleSize.height !== height) setVisibleSize({ width, height });
   };
 
   useEffect(() => {
@@ -82,28 +84,34 @@ export default function Print() {
 
     window.addEventListener('beforeprint', () => {
       printStyle.innerText = `
-      body { visibility: hidden; }
-
-      #printPaper, #printPaper * {
-        visibility: visible;
+      @page {
+        margin: 0;
       }
-
-      #printPaper {
+  
+      body * { visibility: hidden; }
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+      }
+  
+      #paperDesk, #paperDesk * {
+        visibility: visible;
+        width: 100%;
+      }
+  
+      #paperDesk {
         position: absolute;
         width: 100%;
-        top: 0;
         left: 0;
+        top: 0;
       }
       `;
 
       resizePaper();
     });
     window.addEventListener('afterprint', () => {
-      printStyle.innerText = `
-      #printPaper {
-        position: static;
-      }
-      `;
+      printStyle.innerText = ``;
       resizePaper();
     });
   }, []);
@@ -160,14 +168,16 @@ export default function Print() {
           <Button className="bg-danger text-white hover:bg-danger-dark focus:ring focus:ring-danger mt-5" text="Reset" onClick={reset} />
 
           <Button className="bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning mt-12 w-full" text="Unduh PDF" onClick={() => downloadPDF()} />
-          <Button className="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-admin mt-4 w-full" text="Cetak" />
+          <Button className="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-admin mt-4 w-full" text="Cetak" onClick={window.print} />
         </div>
         <div className="bg-gray-200 rounded-xl col-span-2 py-2">
-          <div className="bg-white w-3/4 mx-auto overflow-hidden" id="printPaper" style={{ padding: visibleSize.width * 0.04 }}>
-            <div className="border-1 border-black grid grid-cols-2" style={{ gap: visibleSize.width * 0.04 }}>
-              {new Array(indexRange[1] - indexRange[0] + 1).fill(0).map((_, index) => 
-              <NomorMeja noUjian={3001 + index} qr="loading..." noRuang="R.01" kelas="XII RPL 1" nama="Iwan Haryatno" />
-              )}
+          <div id="paperDesk">
+            <div className="bg-white w-3/4 mx-auto overflow-hidden printPaper" style={{ padding: visibleSize.width * 0.02 }}>
+              <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
+                {new Array(indexRange[1] - indexRange[0] + 1).fill(0).map((_, index) => 
+                <NomorMeja noUjian={3001 + index} qr="loading..." noRuang="R.01" kelas="XII RPL 1" nama="Iwan Haryatno" />
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -177,22 +187,30 @@ export default function Print() {
 }
 
 function NomorMeja({ noUjian, qr, noRuang, kelas, nama }) {
-  useEffect(() => {
-    const image = document.querySelector('#qr-' + noUjian);
-    QRCode.toDataURL(kelas.concat(noUjian)).then((url) => {
-      image.src = url;
-    });
-    
+  const resizeFonts = () => {
     const nomorMeja = document.getElementById('meja-' + noUjian);
     const noUjianBox = nomorMeja.querySelector('.no-ujian');
     const noRuangBox = nomorMeja.querySelector('.no-ruang');
     const kelasBox = nomorMeja.querySelector('.kelas');
     const namaBox = nomorMeja.querySelector('.nama');
+    const qrBox = nomorMeja.querySelector('.qr');
 
     noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.12 + 'px';
     noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.20 + 'px';
     kelasBox.style.fontSize = kelasBox.clientWidth * 0.20 + 'px';
     namaBox.style.fontSize = namaBox.clientWidth * 0.08 + 'px';
+    qrBox.style.padding = qrBox.clientWidth * 0.1 + 'px';
+  }
+
+  useEffect(() => {
+    const image = document.querySelector('#qr-' + noUjian);
+    QRCode.toDataURL(kelas.concat(noUjian), { margin: 0 }).then((url) => {
+      image.src = url;
+    });
+
+    window.addEventListener('beforeprint', resizeFonts);
+
+    resizeFonts();
   }, []);
 
   return (
@@ -200,7 +218,7 @@ function NomorMeja({ noUjian, qr, noRuang, kelas, nama }) {
       <div className="grid grid-cols-9 divide-x divide-gray-900">
         <div className="flex items-center justify-center col-span-2"></div>
         <div className="flex items-center justify-center col-span-5 no-ujian font-bold">{noUjian}</div>
-        <div className="flex items-center justify-center col-span-2">
+        <div className="flex items-center justify-center col-span-2 qr">
           <img src="" id={'qr-' + noUjian} alt={'QR ' + noUjian} className="w-full" />
         </div>
       </div>
