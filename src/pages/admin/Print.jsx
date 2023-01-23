@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import QRCode from 'qrcode';
-import html2pdf from 'html2pdf.js';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -56,8 +55,7 @@ export default function Print() {
   };
 
   const downloadPDF = () => {
-    const printPaper = document.querySelector('#printPaper');
-    html2pdf().from(printPaper).save();
+    window.print();
   };
 
   useEffect(() => {
