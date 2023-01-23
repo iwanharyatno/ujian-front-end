@@ -12,7 +12,7 @@ import {
   faFileExcel,
 } from '@fortawesome/free-solid-svg-icons';
 
-//import Student from '../../api/student.js';
+import Nomination from '../../api/student.js';
 import { default as KelasAPI } from '../../api/kelas.js';
 
 import { filterDistinct, searchData, findData, updateData, deleteData } from '../../utils/common.js';
@@ -35,7 +35,7 @@ const STATUS_SUCCESS = 'status-success';
 const STATUS_FAILED = 'status-failed';
 
 export default function Nominations() {
-  const [students, setStudents] = useState([]);
+  const [nominations, setNominations] = useState([]);
   const [classes, setClasses] = useState([]);
   const [query, setQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -43,10 +43,24 @@ export default function Nominations() {
   const [showHint, setShowHint] = useState(false);
   const [formStatus, setFormStatus] = useState({});
 
+  const [filters, setFilters] = useState([]);
+
   const [formData, setFormData] = useState({});
   const [edit, setEdit] = useState(false);
 
-  const displayedData = searchData(query, students);
+  const filterNominations = (source) => {
+    let filtered = [...source];
+    filters.forEach((matcher) => {
+      if (!matcher) return;
+      const [key, value] = matcher;
+      filtered = filtered.filter((datum) => datum[key] == value);
+    });
+
+    return filtered;
+  };
+
+
+  const displayedData = searchData(query, filterNominations(nominations));
 
   const submitData = async (event) => {
     event.preventDefault();
@@ -55,7 +69,7 @@ export default function Nominations() {
       type: STATUS_PENDING
     });
     try {
-      let updatedStudent = [...students];
+      let updatedNomination = [...nominations];
       
       if (edit) {
         const adjustedData = {
@@ -65,16 +79,16 @@ export default function Nominations() {
           kelas: formData.kelas,
           noabsen: formData.noabsen
         };
-        const result = await Student.update(adjustedData);
+        const result = await Nomination.update(adjustedData);
         adjustedData.kelas_id = adjustedData.kelas;
         adjustedData.user_id = adjustedData.id;
-        updatedStudent = updateData(['user_id', formData.id], updatedStudent, adjustedData);
+        updatedNomination = updateData(['user_id', formData.id], updatedNomination, adjustedData);
       } else {
-        const res = await Student.insert(formData);
-        updatedStudent.push(formData);
+        const res = await Nomination.insert(formData);
+        updatedNomination.push(formData);
       }
   
-      setStudents(updatedStudent);
+      setNominations(updatedNomination);
       setShowModal(false);
       setFormStatus({
         type: STATUS_SUCCESS
@@ -100,12 +114,12 @@ export default function Nominations() {
     let retryTimeout = null;
     const fetchData = async () => {
       try {
-//        const students = await Student.getAll();
+//        const nominations = await Nomination.getAll();
         const classes = await KelasAPI.getAll();
 
         if (retryTimeout) clearTimeout(retryTimeout);
 
-//        setStudents(students);
+//        setNominations(nominations);
         setClasses(classes);
       } catch (err) {
         console.error(err);
@@ -121,13 +135,13 @@ export default function Nominations() {
   };
 
   const onEdit = (id) => {
-    const studentForEdit = findData(['id', id], students);
+    const nominationForEdit = findData(['id', id], nominations);
 
-    studentForEdit.kelas = studentForEdit.kelas_id;
-    studentForEdit.id = studentForEdit.user_id;
+    nominationForEdit.kelas = nominationForEdit.kelas_id;
+    nominationForEdit.id = nominationForEdit.user_id;
 
     setEdit(true);
-    setFormData(studentForEdit);
+    setFormData(nominationForEdit);
     setShowModal(true);
   };
 
@@ -135,10 +149,10 @@ export default function Nominations() {
     const confirmed = confirm('Yakin hapus data siswa ini?');
 
     if (!confirmed) return;
-    await Student.delete(id);
+    await Nomination.delete(id);
 
-    setStudents(
-      deleteData(['user_id', id], students)
+    setNominations(
+      deleteData(['user_id', id], nominations)
     );
   };
 
@@ -226,11 +240,12 @@ export default function Nominations() {
         <SearchInput onSearch={setQuery}/>
         <div className="relative">
           <ActionButton text="Filter" icon={faFilter} color="bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning-fade" onClick={() => setShowFilter(true)} />
-          <FilterMenu show={showFilter} onClose={() => setShowFilter(false)} />
+          <FilterMenu show={showFilter} onClose={() => setShowFilter(false)} onChange={(matchers) => setFilters(matchers)} />
+    
         </div>
         <div className="relative">
           <ActionButton text="Tambah" icon={faPlusCircle} color="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-fade" onClick={onAdd} />
-          <Hint visible={showHint} text={<p>Untuk menambah nominasi baru, anda bisa memilih siswa di halaman Daftar Siswa kemudian memilih opsi <strong>Yang Dipilih > Tambah ke nominasi</strong>.</p>} cta={<Link to="/admin/students" className="block p-3">Buka Daftar Siswa</Link>} />
+          <Hint visible={showHint} text={<p>Untuk menambah nominasi baru, anda bisa memilih siswa di halaman Daftar Siswa kemudian memilih opsi <strong>Yang Dipilih > Tambah ke nominasi</strong>.</p>} cta={<Link to="/admin/nominations" className="block p-3">Buka Daftar Siswa</Link>} />
         </div>
       </div>
       <PaginatedTable
@@ -258,8 +273,9 @@ function Hint({ text, cta, visible }) {
   );
 }
 
-function FilterMenu({ onClose, show }) {
+function FilterMenu({ onClose, show, onChange }) {
   const [classes, setClasses] = useState([]);
+  const [macthers, setMatchers] = useState(new Array(2));
 
   useEffect(() => {
     const fetchKelas = async () => {
@@ -274,6 +290,15 @@ function FilterMenu({ onClose, show }) {
     fetchKelas();
   }, []);
 
+  const updateMatchers = (index, matcher) => {
+    const updatedMatchers = [...macthers];
+    updatedMatchers[index] = matcher[1] ? matcher : null;
+
+    setMatchers(updatedMatchers);
+
+    if (onChange) onChange(updatedMatchers);
+  };
+
   return (
     <div className={'absolute top-100 translate-y-1 w-64 bg-white border-2 border-gray-300 p-4 ' + (show ? 'block' : 'hidden')}>
       <div className="flex justify-between items-center mb-4">
@@ -283,12 +308,12 @@ function FilterMenu({ onClose, show }) {
         </button>
       </div>
       <div>
-        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-2">
-          <option>Kelas</option>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-2" onChange={() => updateMatchers(0, ['kelas_id', event.target.value])}>
+          <option value="">Kelas</option>
           {classes.map((kelas) => <option value={kelas.id}>{kelas.namakelas}</option>)}
         </select>
-        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4">
-          <option>Jurusan</option>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4" onChange={() => updateMatchers(1, ['jurusan', event.target.value])}>
+          <option value="">Jurusan</option>
           {filterDistinct(classes.map((kelas) => kelas.jurusan)).map((jurusan) => <option value={jurusan}>{jurusan}</option>)}
         </select>
       </div>
