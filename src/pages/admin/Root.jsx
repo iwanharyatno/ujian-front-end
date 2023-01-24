@@ -74,7 +74,7 @@ export default function AdminRoot() {
           <span>Logout</span>
         </NavLink>
       </header>
-      <aside className="col-span-12 md:col-span-2 hidden md:block">
+      <aside className="col-span-12 md:col-span-2 hidden md:block overflow-scroll">
         <div className="flex justify-center h-48 px-5 items-center border-b-4">
           <FontAwesomeIcon className="text-primary-admin mr-4 text-4xl" icon={faUserCircle} />
           <span className="text-3xl font-medium">Admin</span>
