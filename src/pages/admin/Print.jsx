@@ -58,6 +58,8 @@ export default function Print() {
     }
 
     if (visibleSize.width !== width && visibleSize.height !== height) setVisibleSize({ width, height });
+
+    return { width, height }
   };
 
   useEffect(() => {
@@ -82,36 +84,39 @@ export default function Print() {
 
     fetchData();
 
+    const paperDesk = document.querySelector('#paperDesk');
+    const printPreview = document.querySelector('#printPreview');
+    const printPortal = document.querySelector('#printPortal');
+
     window.addEventListener('beforeprint', () => {
+      printPortal.innerHTML = '';
       printStyle.innerText = `
       @page {
         margin: 0;
       }
-  
-      body * { visibility: hidden; }
-      body {
-        width: 100%;
-        height: 100%;
-        overflow: auto;
+
+      body #root {
+        display: none;
       }
-  
-      #paperDesk, #paperDesk * {
-        visibility: visible;
+
+      #printPortal, #printPortal * {
         width: 100%;
       }
-  
-      #paperDesk {
-        position: absolute;
-        width: 100%;
-        left: 0;
-        top: 0;
+      #printPortal .printPaper {
+        break-inside: avoid;
       }
       `;
+      printPortal.appendChild(paperDesk);
+      printPortal.removeAttribute('hidden');
 
       resizePaper();
+      window.dispatchEvent(new Event('abouttoprint'));
     });
     window.addEventListener('afterprint', () => {
-      printStyle.innerText = ``;
+      printPreview.innerHTML = '';
+      printStyle.innerText = '';
+      printPortal.setAttribute('hidden', true);
+      printPreview.appendChild(paperDesk);
       resizePaper();
     });
   }, []);
@@ -170,8 +175,15 @@ export default function Print() {
           <Button className="bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning mt-12 w-full" text="Unduh PDF" onClick={() => downloadPDF()} />
           <Button className="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-admin mt-4 w-full" text="Cetak" onClick={window.print} />
         </div>
-        <div className="bg-gray-200 rounded-xl col-span-2 py-2">
+        <div className="bg-gray-200 rounded-xl col-span-2 py-2" id="printPreview">
           <div id="paperDesk">
+            <div className="bg-white w-3/4 mx-auto overflow-hidden printPaper" style={{ padding: visibleSize.width * 0.02 }}>
+              <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
+                {new Array(indexRange[1] - indexRange[0] + 1).fill(0).map((_, index) => 
+                <NomorMeja noUjian={2001 + index} qr="loading..." noRuang="R.01" kelas="XII RPL 1" nama="Iwan Haryatno" />
+                )}
+              </div>
+            </div>
             <div className="bg-white w-3/4 mx-auto overflow-hidden printPaper" style={{ padding: visibleSize.width * 0.02 }}>
               <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
                 {new Array(indexRange[1] - indexRange[0] + 1).fill(0).map((_, index) => 
@@ -214,7 +226,7 @@ function NomorMeja({ noUjian, qr, noRuang, kelas, nama }) {
   }, []);
 
   return (
-    <div className="border border-gray-900 grid grid-rows-2 divide-y divide-gray-900 font-semibold" id={'meja-' + noUjian}>
+    <div className="border border-gray-900 grid grid-rows-2 divide-y divide-gray-900 font-semibold label-meja" id={'meja-' + noUjian}>
       <div className="grid grid-cols-9 divide-x divide-gray-900">
         <div className="flex items-center justify-center col-span-2"></div>
         <div className="flex items-center justify-center col-span-5 no-ujian font-bold">{noUjian}</div>
