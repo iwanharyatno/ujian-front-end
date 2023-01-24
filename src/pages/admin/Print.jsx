@@ -44,6 +44,25 @@ export default function Print() {
     setFormat('A4');
   };
 
+  const resizeFonts = () => {
+    const mejaLabels = document.querySelectorAll('.label-meja');
+    
+    for (let i = 0; i < mejaLabels.length; i++) {
+      const nomorMeja = mejaLabels[i];
+      const noUjianBox = nomorMeja.querySelector('.no-ujian');
+      const noRuangBox = nomorMeja.querySelector('.no-ruang');
+      const kelasBox = nomorMeja.querySelector('.kelas');
+      const namaBox = nomorMeja.querySelector('.nama');
+      const qrBox = nomorMeja.querySelector('.qr');
+    
+      noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.1 + 'px';
+      noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.15 + 'px';
+      kelasBox.style.fontSize = kelasBox.clientWidth * 0.15 + 'px';
+      namaBox.style.fontSize = namaBox.clientWidth * 0.06 + 'px';
+      qrBox.style.padding = qrBox.clientWidth * 0.08 + 'px';
+    }
+  };
+
   const resizePaper = () => {
     const size = findData(['name', format], paperSizes);
     const aspect = size.height / size.width;
@@ -110,19 +129,22 @@ export default function Print() {
       printPortal.removeAttribute('hidden');
 
       resizePaper();
-      window.dispatchEvent(new Event('abouttoprint'));
+      resizeFonts();
     });
     window.addEventListener('afterprint', () => {
       printPreview.innerHTML = '';
       printStyle.innerText = '';
       printPortal.setAttribute('hidden', true);
       printPreview.appendChild(paperDesk);
+
       resizePaper();
+      resizeFonts();
     });
   }, []);
 
   useEffect(() => {
     resizePaper();
+    resizeFonts();
   });
 
   return (
@@ -199,30 +221,11 @@ export default function Print() {
 }
 
 function NomorMeja({ noUjian, qr, noRuang, kelas, nama }) {
-  const resizeFonts = () => {
-    const nomorMeja = document.getElementById('meja-' + noUjian);
-    const noUjianBox = nomorMeja.querySelector('.no-ujian');
-    const noRuangBox = nomorMeja.querySelector('.no-ruang');
-    const kelasBox = nomorMeja.querySelector('.kelas');
-    const namaBox = nomorMeja.querySelector('.nama');
-    const qrBox = nomorMeja.querySelector('.qr');
-
-    noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.12 + 'px';
-    noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.20 + 'px';
-    kelasBox.style.fontSize = kelasBox.clientWidth * 0.20 + 'px';
-    namaBox.style.fontSize = namaBox.clientWidth * 0.08 + 'px';
-    qrBox.style.padding = qrBox.clientWidth * 0.1 + 'px';
-  }
-
   useEffect(() => {
     const image = document.querySelector('#qr-' + noUjian);
     QRCode.toDataURL(kelas.concat(noUjian), { margin: 0 }).then((url) => {
       image.src = url;
     });
-
-    window.addEventListener('beforeprint', resizeFonts);
-
-    resizeFonts();
   }, []);
 
   return (

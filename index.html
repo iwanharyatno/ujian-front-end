@@ -10,25 +10,5 @@
     <div id="root"></div>
     <div id="printPortal"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      window.addEventListener('abouttoprint', function() {
-        const mejaLabels = document.querySelectorAll('.label-meja');
-        
-        for (let i = 0; i < mejaLabels.length; i++) {
-          const nomorMeja = mejaLabels[i];
-          const noUjianBox = nomorMeja.querySelector('.no-ujian');
-          const noRuangBox = nomorMeja.querySelector('.no-ruang');
-          const kelasBox = nomorMeja.querySelector('.kelas');
-          const namaBox = nomorMeja.querySelector('.nama');
-          const qrBox = nomorMeja.querySelector('.qr');
-      
-          noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.1 + 'px';
-          noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.15 + 'px';
-          kelasBox.style.fontSize = kelasBox.clientWidth * 0.15 + 'px';
-          namaBox.style.fontSize = namaBox.clientWidth * 0.05 + 'px';
-          qrBox.style.padding = qrBox.clientWidth * 0.08 + 'px';
-        }
-      });
-    </script>
   </body>
 </html>
