@@ -238,9 +238,9 @@ function NomorMeja({ noUjian, qr, noRuang, kelas, nama }) {
   return (
     <div className="border border-gray-900 grid grid-rows-2 divide-y divide-gray-900 font-semibold label-meja" id={'meja-' + noUjian}>
       <div className="grid grid-cols-9 divide-x divide-gray-900">
-        <div className="flex flex-col items-center justify-center col-span-2">
+        <div className="flex flex-col items-center justify-center col-span-2 nama-ujian">
           <img src="/smk-icon.png" alt="SMK" className="w-full" />
-          <div className="text-center nama-ujian">PAS GASAL 2022/2023</div>
+          <div className="text-center">PAS GASAL 2022/2023</div>
         </div>
         <div className="flex items-center justify-center col-span-5 no-ujian font-bold">{noUjian}</div>
         <div className="flex items-center justify-center col-span-2 qr">
