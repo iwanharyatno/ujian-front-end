@@ -36,10 +36,30 @@ export default function Print() {
       height: 297
     },
     {
+      name: 'A5',
+      width: 148,
+      height: 210
+    },
+    {
       name: 'F4',
       width: 210,
       height: 330
-    }
+    },
+    {
+      name: 'Q4',
+      width: 216,
+      height: 279
+    },
+    {
+      name: 'A3',
+      width: 297,
+      height: 242
+    },
+    {
+      name: 'A3+',
+      width: 330,
+      height: 480
+    },
   ];
 
   const reset = () => {

@@ -12,7 +12,7 @@ import {
   faFileExcel,
 } from '@fortawesome/free-solid-svg-icons';
 
-import Nomination from '../../api/student.js';
+import Nomination from '../../api/nomination.js';
 import { default as KelasAPI } from '../../api/kelas.js';
 
 import { filterDistinct, searchData, findData, updateData, deleteData } from '../../utils/common.js';
@@ -114,12 +114,12 @@ export default function Nominations() {
     let retryTimeout = null;
     const fetchData = async () => {
       try {
-//        const nominations = await Nomination.getAll();
+        const nominations = await Nomination.getAll();
         const classes = await KelasAPI.getAll();
 
         if (retryTimeout) clearTimeout(retryTimeout);
 
-//        setNominations(nominations);
+        setNominations(nominations);
         setClasses(classes);
       } catch (err) {
         console.error(err);
@@ -250,8 +250,8 @@ export default function Nominations() {
       </div>
       <PaginatedTable
         data={displayedData}
-        headings={['NIS', 'Nama', 'Kelas ID']}
-        visibleKeys={['nis', 'namalengkap', 'kelas']}
+        headings={['No Ujian', 'Nama', 'Kelas ID']}
+        visibleKeys={['no_ujian', 'siswa.namalengkap', 'kelas_id']}
         deleteKey="user_id"
         onEdit={onEdit} onDelete={onDelete} />
     </div>
