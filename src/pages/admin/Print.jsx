@@ -132,6 +132,9 @@ export default function Print() {
 
       #printPortal .printPaper {
         break-inside: avoid;
+        height: auto !important;
+        margin: 0 !important;
+        box-shadow: none !important;
       }
       `;
       printPortal.appendChild(paperDesk);
@@ -209,7 +212,7 @@ export default function Print() {
         <div className="bg-gray-200 rounded-xl col-span-2 py-2" id="printPreview">
           <div id="paperDesk">
             {nominations.map((page) => (
-            <div className="bg-white w-3/4 mx-auto overflow-hidden printPaper" style={{ padding: visibleSize.width * 0.02 }}>
+            <div className="bg-white w-3/4 mx-auto my-2 overflow-hidden shadow printPaper" style={{ padding: visibleSize.width * 0.02 }}>
               <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
                 {page.map((noUjian, index) => 
                 <NomorMeja noUjian={noUjian} qr="loading..." noRuang="R.01" kelas="XII RPL 1" nama="Iwan Haryatno" />
