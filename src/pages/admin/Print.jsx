@@ -18,6 +18,7 @@ import { findData, group } from '../../utils/common.js';
 export default function Print() {
   const [classes, setClasses] = useState([]);
   const [classId, setClassId] = useState(1);
+  const [labelPerPage, setLabelPerPage] = useState(12);
   const [indexRange, setIndexRange] = useState([1, 12]);
   const [format, setFormat] = useState('A4');
   const [visibleSize, setVisibleSize] = useState({
@@ -25,11 +26,8 @@ export default function Print() {
     height: 0
   });
 
-  const nums = indexRange[1] - indexRange[0];
-  const nominations = group(
-    12,
-    new Array(nums + 1).fill(0).map((_, i) => 3001 + i),
-  );
+  const nominations = new Array(36).fill(0).map((_, i) => 3001 + i);;
+  const displayedNominations = nominations.slice(indexRange[0] - 1, indexRange[1]);
 
   const paperSizes = [
     {
@@ -131,7 +129,7 @@ export default function Print() {
       }
 
       #printPortal .printPaper {
-        break-inside: avoid;
+        break-after: page;
         height: auto !important;
         margin: 0 !important;
         box-shadow: none !important;
@@ -185,9 +183,9 @@ export default function Print() {
           </div>
           <div className="flex items-center gap-4 mb-2">
             <div className="w-1/2">
-              <label htmlFor="salinan" className="block font-bold mb-2">Salinan</label>
-              <Input type="text" name="salinan" id="salinan" value={1}
-                onChange={(event) => console.log('TODO: salinan change')} fullwidth />
+              <label htmlFor="label-per-page" className="block font-bold mb-2">Per-halaman</label>
+              <Input type="number" name="label-per-page" id="label-per-page" value={labelPerPage} placeholder="Default: 12"
+                onChange={(event) => setLabelPerPage(event.target.value)} fullwidth />
             </div>
             <div className="w-1/2">
               <label htmlFor="format" className="block font-bold mb-2">Format</label>
@@ -211,7 +209,7 @@ export default function Print() {
         </div>
         <div className="bg-gray-200 rounded-xl col-span-2 py-2" id="printPreview">
           <div id="paperDesk">
-            {nominations.map((page) => (
+            {group(Number(labelPerPage) || 12, displayedNominations).map((page) => (
             <div className="bg-white w-3/4 mx-auto my-2 overflow-hidden shadow printPaper" style={{ padding: visibleSize.width * 0.02 }}>
               <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
                 {page.map((noUjian, index) => 
