@@ -250,8 +250,8 @@ export default function Nominations() {
       </div>
       <PaginatedTable
         data={displayedData}
-        headings={['No Ujian', 'Nama', 'Kelas ID']}
-        visibleKeys={['no_ujian', 'siswa.namalengkap', 'kelas_id']}
+        headings={['No Ujian', 'Nama', 'Kelas']}
+        visibleKeys={['no_ujian', 'siswa.namalengkap', 'kelas.namakelas']}
         deleteKey="user_id"
         onEdit={onEdit} onDelete={onDelete} />
     </div>

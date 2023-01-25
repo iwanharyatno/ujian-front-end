@@ -280,8 +280,8 @@ export default function Rooms() {
       </div>
       <PaginatedTable
         data={displayedData}
-        headings={['No Ruangan', 'Code', 'Kelas ID', 'Kapasitas']}
-        visibleKeys={['no_ruangan', 'kode_ruangan', 'kelas_id', 'kapasitas']}
+        headings={['No Ruangan', 'Code', 'Kelas', 'Kapasitas']}
+        visibleKeys={['no_ruangan', 'kode_ruangan', 'kelas.namakelas', 'kapasitas']}
         onEdit={onEdit} onDelete={onDelete} />
     </div>
   );

@@ -8,6 +8,8 @@ import {
   faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
+import { getObjectValue } from '../utils/common.js';
+
 export function PaginatedTable({
   data, headings, visibleKeys,
   onEdit, onDelete, deleteKey,
@@ -75,7 +77,7 @@ export function PaginatedTable({
               {selectable && <TableData>
                 <input type="checkbox" name="student_ids" value={datum.id} checked={shouldChecked(datum.id)} onChange={handleCheckChange} />
               </TableData>}
-              {visibleKeys.map((visibleKey) => <TableData>{datum[visibleKey]}</TableData>)}
+              {visibleKeys.map((visibleKey) => <TableData>{getObjectValue(datum, visibleKey)}</TableData>)}
               <TableData>
                 <button className="mr-5 text-primary-admin hover:text-primary-dark" onClick={() => onEdit(datum.id)}>
                   <FontAwesomeIcon icon={faEdit} />

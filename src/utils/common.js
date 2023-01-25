@@ -67,3 +67,13 @@ export function group(groupLen, array) {
   return result;
 }
 
+export function getObjectValue(obj, path) {
+  const properties = path.split(/\./g);
+  let nestedObj = obj;
+ 
+  for (const property of properties) {
+    nestedObj = nestedObj[property];
+  }
+ 
+  return nestedObj;
+}
