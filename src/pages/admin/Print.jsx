@@ -60,12 +60,14 @@ export default function Print() {
       const kelasBox = nomorMeja.querySelector('.kelas');
       const namaBox = nomorMeja.querySelector('.nama');
       const qrBox = nomorMeja.querySelector('.qr');
+      const namaUjianBox = nomorMeja.querySelector('.nama-ujian');
     
       noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.1 + 'px';
       noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.15 + 'px';
       kelasBox.style.fontSize = kelasBox.clientWidth * 0.15 + 'px';
       namaBox.style.fontSize = namaBox.clientWidth * 0.06 + 'px';
       qrBox.style.padding = qrBox.clientWidth * 0.08 + 'px';
+      namaUjianBox.style.fontSize = namaUjianBox.clientWidth * 0.06 + 'px';
     }
   };
 
@@ -233,7 +235,10 @@ function NomorMeja({ noUjian, qr, noRuang, kelas, nama }) {
   return (
     <div className="border border-gray-900 grid grid-rows-2 divide-y divide-gray-900 font-semibold label-meja" id={'meja-' + noUjian}>
       <div className="grid grid-cols-9 divide-x divide-gray-900">
-        <div className="flex items-center justify-center col-span-2"></div>
+        <div className="flex flex-col items-center justify-center col-span-2">
+          <img src="/smk-icon.png" alt="SMK" className="w-full" />
+          <div className="text-center nama-ujian">PAS GASAL 2022/2023</div>
+        </div>
         <div className="flex items-center justify-center col-span-5 no-ujian font-bold">{noUjian}</div>
         <div className="flex items-center justify-center col-span-2 qr">
           <img src="" id={'qr-' + noUjian} alt={'QR ' + noUjian} className="w-full" />
