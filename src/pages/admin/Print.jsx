@@ -13,7 +13,7 @@ import { default as KelasAPI } from '../../api/kelas.js';
 import Button from '../../components/Button.jsx';
 import Input from '../../components/Input.jsx';
 
-import { findData } from '../../utils/common.js';
+import { findData, group } from '../../utils/common.js';
 
 export default function Print() {
   const [classes, setClasses] = useState([]);
@@ -24,6 +24,12 @@ export default function Print() {
     width: 0,
     height: 0
   });
+
+  const nums = indexRange[1] - indexRange[0];
+  const nominations = group(
+    12,
+    new Array(nums + 1).fill(0).map((_, i) => 3001 + i),
+  );
 
   const paperSizes = [
     {
@@ -68,7 +74,7 @@ export default function Print() {
     const aspect = size.height / size.width;
 
     const printPapers = document.querySelectorAll('.printPaper');
-    const width = printPapers[0].clientWidth;
+    const width = printPapers[0] ? printPapers[0].clientWidth : 0;
     const height = aspect * width;
 
     for (let i = 0; i < printPapers.length; i++) {
@@ -121,6 +127,7 @@ export default function Print() {
       #printPortal, #printPortal * {
         width: 100%;
       }
+
       #printPortal .printPaper {
         break-inside: avoid;
       }
@@ -199,20 +206,15 @@ export default function Print() {
         </div>
         <div className="bg-gray-200 rounded-xl col-span-2 py-2" id="printPreview">
           <div id="paperDesk">
+            {nominations.map((page) => (
             <div className="bg-white w-3/4 mx-auto overflow-hidden printPaper" style={{ padding: visibleSize.width * 0.02 }}>
               <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
-                {new Array(indexRange[1] - indexRange[0] + 1).fill(0).map((_, index) => 
-                <NomorMeja noUjian={2001 + index} qr="loading..." noRuang="R.01" kelas="XII RPL 1" nama="Iwan Haryatno" />
+                {page.map((noUjian, index) => 
+                <NomorMeja noUjian={noUjian} qr="loading..." noRuang="R.01" kelas="XII RPL 1" nama="Iwan Haryatno" />
                 )}
               </div>
             </div>
-            <div className="bg-white w-3/4 mx-auto overflow-hidden printPaper" style={{ padding: visibleSize.width * 0.02 }}>
-              <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
-                {new Array(indexRange[1] - indexRange[0] + 1).fill(0).map((_, index) => 
-                <NomorMeja noUjian={3001 + index} qr="loading..." noRuang="R.01" kelas="XII RPL 1" nama="Iwan Haryatno" />
-                )}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>

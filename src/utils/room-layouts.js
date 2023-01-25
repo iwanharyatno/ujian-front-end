@@ -1,15 +1,4 @@
-function group(groupLen, array) {
-  const result = [];
-  const groupCount = Math.ceil(array.length / groupLen);
-
-  for (let i = 0; i < groupCount; i++) {
-    result.push(
-      array.slice(i*groupLen, i*groupLen + groupLen)
-    );
-  }
-
-  return result;
-}
+import { group } from './common';
 
 export default {
   init({ cols, tables, padFill }) {
