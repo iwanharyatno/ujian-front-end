@@ -83,13 +83,13 @@ export default function Print() {
       const qrBox = nomorMeja.querySelector('.qr');
       const namaUjianBox = nomorMeja.querySelector('.nama-ujian');
     
-      noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.13 * scale + 'px';
-      noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.2 * scale + 'px';
-      kelasBox.style.fontSize = kelasBox.clientWidth * 0.2 * scale + 'px';
-      namaBox.style.fontSize = namaBox.clientWidth * 0.08 * scale + 'px';
-      namaUjianBox.style.fontSize = namaUjianBox.clientWidth * 0.08 * scale + 'px';
+      noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.1 * scale + 'px';
+      noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.15 * scale + 'px';
+      kelasBox.style.fontSize = kelasBox.clientWidth * 0.15 * scale + 'px';
+      namaBox.style.fontSize = namaBox.clientWidth * 0.06 * scale + 'px';
+      namaUjianBox.style.fontSize = namaUjianBox.clientWidth * 0.06 * scale + 'px';
 
-      qrBox.style.padding = qrBox.clientWidth * 0.11 * scale + 'px';
+      qrBox.style.padding = qrBox.clientWidth * 0.08 * scale + 'px';
     }
   };
 
@@ -145,6 +145,8 @@ export default function Print() {
     const printPortal = document.querySelector('#printPortal');
 
     window.addEventListener('beforeprint', () => {
+      const preferredPaperSize = findData(['name', format], paperSizes);
+
       printPortal.innerHTML = '';
       printStyle.innerText = `
       @page {
@@ -157,21 +159,21 @@ export default function Print() {
 
       #printPortal, #printPortal * {
         width: 100%;
-        font-family: 'Roboto Regular' !important;
       }
 
       #printPortal .printPaper {
         break-after: page;
         height: auto !important;
         margin: 0 !important;
+        font-family: 'Roboto Regular';
         box-shadow: none !important;
       }
       `;
       printPortal.appendChild(paperDesk);
       printPortal.removeAttribute('hidden');
 
+      resizeFonts();
       resizePaper();
-      resizeFonts(0.75);
     });
     window.addEventListener('afterprint', () => {
       printPreview.innerHTML = '';
@@ -183,8 +185,8 @@ export default function Print() {
       printPortal.setAttribute('hidden', true);
       printPreview.appendChild(paperDesk);
 
-      resizePaper();
       resizeFonts();
+      resizePaper();
     });
   }, []);
 
