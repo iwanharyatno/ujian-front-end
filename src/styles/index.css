@@ -2,6 +2,11 @@
 @tailwind utilities;
 @tailwind components;
 
+@font-face {
+  font-family: "Roboto Regular";
+  src: url('/fonts/Roboto-Regular.ttf') format("truetype");
+}
+
 .darker-placeholder::placeholder {
   @apply text-gray-500;
 }

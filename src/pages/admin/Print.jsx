@@ -115,6 +115,11 @@ export default function Print() {
     document.title = 'Admin | Cetak Nomor Meja';
 
     const printStyle = document.createElement('style');
+    printStyle.innerText = `
+    .printPaper {
+      font-family: 'Roboto Regular';
+    }
+    `;
     document.head.appendChild(printStyle);
 
     let retryTimeout = null;
@@ -152,6 +157,7 @@ export default function Print() {
 
       #printPortal, #printPortal * {
         width: 100%;
+        font-family: 'Roboto Regular' !important;
       }
 
       #printPortal .printPaper {
@@ -169,12 +175,16 @@ export default function Print() {
     });
     window.addEventListener('afterprint', () => {
       printPreview.innerHTML = '';
-      printStyle.innerText = '';
+      printStyle.innerText = `
+      .printPaper {
+        font-family: 'Roboto Regular';
+      }
+      `;
       printPortal.setAttribute('hidden', true);
       printPreview.appendChild(paperDesk);
 
       resizePaper();
-      resizeFonts(0.75);
+      resizeFonts();
     });
   }, []);
 
