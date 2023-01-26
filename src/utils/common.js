@@ -73,6 +73,7 @@ export function getObjectValue(obj, path) {
  
   for (const property of properties) {
     nestedObj = nestedObj[property];
+    if (!nestedObj) break;
   }
  
   return nestedObj;

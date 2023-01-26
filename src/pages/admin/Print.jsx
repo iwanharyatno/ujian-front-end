@@ -9,6 +9,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { default as KelasAPI } from '../../api/kelas.js';
+import Nomination from '../../api/nomination.js';
 
 import Button from '../../components/Button.jsx';
 import Input from '../../components/Input.jsx';
@@ -17,6 +18,7 @@ import { findData, group } from '../../utils/common.js';
 
 export default function Print() {
   const [classes, setClasses] = useState([]);
+  const [nominations, setNominations] = useState([]);
   const [classId, setClassId] = useState(1);
   const [labelPerPage, setLabelPerPage] = useState(12);
   const [indexRange, setIndexRange] = useState([1, 12]);
@@ -26,8 +28,9 @@ export default function Print() {
     height: 0
   });
 
-  const nominations = new Array(36).fill(0).map((_, i) => 3001 + i);;
-  const displayedNominations = nominations.slice(indexRange[0] - 1, indexRange[1]);
+  const displayedNominations = nominations
+    .filter((nomination) => Number(nomination.kelas_id) === Number(classId))
+    .slice(indexRange[0] - 1, indexRange[1]);
 
   const paperSizes = [
     {
@@ -68,7 +71,7 @@ export default function Print() {
     setFormat('A4');
   };
 
-  const resizeFonts = () => {
+  const resizeFonts = (scale=1) => {
     const mejaLabels = document.querySelectorAll('.label-meja');
     
     for (let i = 0; i < mejaLabels.length; i++) {
@@ -80,12 +83,13 @@ export default function Print() {
       const qrBox = nomorMeja.querySelector('.qr');
       const namaUjianBox = nomorMeja.querySelector('.nama-ujian');
     
-      noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.1 + 'px';
-      noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.15 + 'px';
-      kelasBox.style.fontSize = kelasBox.clientWidth * 0.15 + 'px';
-      namaBox.style.fontSize = namaBox.clientWidth * 0.06 + 'px';
-      qrBox.style.padding = qrBox.clientWidth * 0.08 + 'px';
-      namaUjianBox.style.fontSize = namaUjianBox.clientWidth * 0.06 + 'px';
+      noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.13 * scale + 'px';
+      noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.2 * scale + 'px';
+      kelasBox.style.fontSize = kelasBox.clientWidth * 0.2 * scale + 'px';
+      namaBox.style.fontSize = namaBox.clientWidth * 0.08 * scale + 'px';
+      namaUjianBox.style.fontSize = namaUjianBox.clientWidth * 0.08 * scale + 'px';
+
+      qrBox.style.padding = qrBox.clientWidth * 0.11 * scale + 'px';
     }
   };
 
@@ -116,11 +120,13 @@ export default function Print() {
     let retryTimeout = null;
     const fetchData = async () => {
       try {
+        const apiNominations = await Nomination.getAll();
         const classes = await KelasAPI.getAll();
 
         if (retryTimeout) clearTimeout(retryTimeout);
 
         setClasses(classes);
+        setNominations(apiNominations);
       } catch (err) {
         console.error(err);
         retryTimeout = setTimeout(fetchData, 3000);
@@ -159,7 +165,7 @@ export default function Print() {
       printPortal.removeAttribute('hidden');
 
       resizePaper();
-      resizeFonts();
+      resizeFonts(0.75);
     });
     window.addEventListener('afterprint', () => {
       printPreview.innerHTML = '';
@@ -168,7 +174,7 @@ export default function Print() {
       printPreview.appendChild(paperDesk);
 
       resizePaper();
-      resizeFonts();
+      resizeFonts(0.75);
     });
   }, []);
 
@@ -232,8 +238,8 @@ export default function Print() {
             {group(Number(labelPerPage) || 12, displayedNominations).map((page) => (
             <div className="bg-white w-3/4 mx-auto my-2 overflow-hidden shadow printPaper" style={{ padding: visibleSize.width * 0.02 }}>
               <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
-                {page.map((noUjian, index) => 
-                <NomorMeja noUjian={noUjian} qr="loading..." noRuang="R.01" kelas="XII RPL 1" nama="Iwan Haryatno" />
+                {page.map((nomination) => 
+                <NomorMeja noUjian={nomination.no_ujian} qr="loading..." noRuang="R.01" kelas={nomination.kelas.namakelas} nama={nomination.siswa.namalengkap} />
                 )}
               </div>
             </div>
@@ -268,7 +274,7 @@ function NomorMeja({ noUjian, qr, noRuang, kelas, nama }) {
       <div className="grid grid-cols-9 divide-x divide-gray-900">
         <div className="flex items-center justify-center col-span-2 no-ruang">{noRuang}</div>
         <div className="flex items-center justify-center col-span-2 kelas">{kelas}</div>
-        <div className="flex items-center justify-center col-span-5 nama">{nama}</div>
+        <div className="flex items-center justify-center col-span-5 nama text-center">{nama}</div>
       </div>
     </div>
   );

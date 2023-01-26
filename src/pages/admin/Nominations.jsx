@@ -15,7 +15,7 @@ import {
 import Nomination from '../../api/nomination.js';
 import { default as KelasAPI } from '../../api/kelas.js';
 
-import { filterDistinct, searchData, findData, updateData, deleteData } from '../../utils/common.js';
+import { filterDistinct, searchData, findData, updateData, deleteData, getObjectValue } from '../../utils/common.js';
 
 import SearchInput from '../../components/SearchInput.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
@@ -53,7 +53,7 @@ export default function Nominations() {
     filters.forEach((matcher) => {
       if (!matcher) return;
       const [key, value] = matcher;
-      filtered = filtered.filter((datum) => datum[key] == value);
+      filtered = filtered.filter((datum) => getObjectValue(datum, key) == value);
     });
 
     return filtered;
@@ -146,13 +146,13 @@ export default function Nominations() {
   };
 
   const onDelete = async (id) => {
-    const confirmed = confirm('Yakin hapus data siswa ini?');
+    const confirmed = confirm('Yakin hapus nominasi ini?');
 
     if (!confirmed) return;
     await Nomination.delete(id);
 
     setNominations(
-      deleteData(['user_id', id], nominations)
+      deleteData(['id', id], nominations)
     );
   };
 
@@ -245,14 +245,13 @@ export default function Nominations() {
         </div>
         <div className="relative">
           <ActionButton text="Tambah" icon={faPlusCircle} color="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-fade" onClick={onAdd} />
-          <Hint visible={showHint} text={<p>Untuk menambah nominasi baru, anda bisa memilih siswa di halaman Daftar Siswa kemudian memilih opsi <strong>Yang Dipilih > Tambah ke nominasi</strong>.</p>} cta={<Link to="/admin/nominations" className="block p-3">Buka Daftar Siswa</Link>} />
+          <Hint visible={showHint} text={<p>Untuk menambah nominasi baru, anda bisa memilih siswa di halaman Daftar Siswa kemudian memilih opsi <strong>Yang Dipilih > Tambah ke nominasi</strong>.</p>} cta={<Link to="/admin/students" className="block p-3">Buka Daftar Siswa</Link>} />
         </div>
       </div>
       <PaginatedTable
         data={displayedData}
         headings={['No Ujian', 'Nama', 'Kelas']}
         visibleKeys={['no_ujian', 'siswa.namalengkap', 'kelas.namakelas']}
-        deleteKey="user_id"
         onEdit={onEdit} onDelete={onDelete} />
     </div>
   );
@@ -312,7 +311,7 @@ function FilterMenu({ onClose, show, onChange }) {
           <option value="">Kelas</option>
           {classes.map((kelas) => <option value={kelas.id}>{kelas.namakelas}</option>)}
         </select>
-        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4" onChange={() => updateMatchers(1, ['jurusan', event.target.value])}>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4" onChange={() => updateMatchers(1, ['kelas.jurusan', event.target.value])}>
           <option value="">Jurusan</option>
           {filterDistinct(classes.map((kelas) => kelas.jurusan)).map((jurusan) => <option value={jurusan}>{jurusan}</option>)}
         </select>

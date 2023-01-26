@@ -13,9 +13,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import Student from '../../api/student.js';
+import Nomination from '../../api/nomination.js';
 import { default as KelasAPI } from '../../api/kelas.js';
 
-import { filterDistinct, searchData, findData, updateData, deleteData } from '../../utils/common.js';
+import { filterDistinct, searchData, findData, updateData, deleteData, getObjectValue } from '../../utils/common.js';
 
 import SearchInput from '../../components/SearchInput.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
@@ -42,6 +43,7 @@ export default function Students() {
   const [showFilter, setShowFilter] = useState(false);
   const [showSelectedOption, setShowSelectedOption] = useState(false);
   const [formStatus, setFormStatus] = useState({});
+  const [nominationStatus, setNominationStatus] = useState({});
   const [selectedItems, setSelectedItems] = useState([]);
 
   const [filters, setFilters] = useState([]);
@@ -54,7 +56,7 @@ export default function Students() {
     filters.forEach((matcher) => {
       if (!matcher) return;
       const [key, value] = matcher;
-      filtered = filtered.filter((datum) => datum[key] == value);
+      filtered = filtered.filter((datum) => getObjectValue(datum, key) == value);
     });
 
     return filtered;
@@ -121,7 +123,7 @@ export default function Students() {
         setStudents(students);
         setClasses(classes);
       } catch (err) {
-        console.error(err);
+        console.error(err.response);
         retryTimeout = setTimeout(fetchData, 3000);
       }
     };
@@ -161,9 +163,33 @@ export default function Students() {
     );
   };
 
-  const sendNominationsData = () => {
+  const sendNominationsData = async () => {
     if (selectedItems.length === 0) return;
-    alert(`Mengirimkan ${[...selectedItems]} `);
+
+    const firstSelected = selectedItems[0];
+    const targetStudent = findData(['id', firstSelected], students);
+
+    try {
+      setNominationStatus({
+        type: STATUS_PENDING,
+      });
+  
+      await Nomination.insert({
+        siswa_id: firstSelected,
+        kelas_id: targetStudent.kelas_id
+      });
+  
+      setNominationStatus({
+        type: STATUS_SUCCESS,
+      });
+    } catch (err) {
+      const messages = err;
+
+      setNominationStatus({
+        type: STATUS_FAILED,
+        message: err,
+      });
+    }
   };
 
   return (
@@ -255,7 +281,7 @@ export default function Students() {
         <div className={'relative ' + (selectedItems.length !== 0 ? '' : 'hidden')}>
           <ActionButton text="Yang Dipilih..." icon={faPersonCircleCheck} color="bg-success-admin text-white hover:bg-success-admin-dark focus:ring focus:ring-success-admin" onClick={() => setShowSelectedOption(!showSelectedOption)} />
           <DropdownOptions show={showSelectedOption} options={[
-            <button className="hover:bg-gray-300 p-3 focus:ring focus:ring-primary-fade" onClick={sendNominationsData} key={1}>Tambah ke Nominasi</button>
+            <button className="hover:bg-gray-300 p-3 focus:ring focus:ring-primary-fade" disabled={nominationStatus.type === STATUS_PENDING} onClick={sendNominationsData} key={1}>{nominationStatus.type === STATUS_PENDING ? 'Mengirim data...' : nominationStatus.type === STATUS_FAILED ? 'Gagal mengirim ke nominasi.' : 'Tambah ke Nominasi'}</button>
           ]} />
         </div>
       </div>
@@ -318,7 +344,7 @@ function FilterMenu({ onClose, show, onChange }) {
           <option value="">Kelas</option>
           {classes.map((kelas) => <option value={kelas.id}>{kelas.namakelas}</option>)}
         </select>
-        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4" onChange={() => updateMatchers(1, ['jurusan', event.target.value])}>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4" onChange={() => updateMatchers(1, ['kelas.jurusan', event.target.value])}>
           <option value="">Jurusan</option>
           {filterDistinct(classes.map((kelas) => kelas.jurusan)).map((jurusan) => <option value={jurusan}>{jurusan}</option>)}
         </select>
