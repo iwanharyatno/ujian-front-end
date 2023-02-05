@@ -16,6 +16,12 @@ import Input from '../../components/Input.jsx';
 
 import { findData, group } from '../../utils/common.js';
 
+const NOUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.0328;
+const NORUANGBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.0206;
+const KELASBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.0196;
+const NAMABOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.0201;
+const NAMAUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.00824;
+
 export default function Print() {
   const [classes, setClasses] = useState([]);
   const [nominations, setNominations] = useState([]);
@@ -90,11 +96,11 @@ export default function Print() {
       const qrBox = nomorMeja.querySelector('.qr');
       const namaUjianBox = nomorMeja.querySelector('.nama-ujian');
     
-      noUjianBox.style.fontSize = printPaper.clientWidth * 0.0328 + 'px';
-      noRuangBox.style.fontSize = printPaper.clientWidth * 0.0206 + 'px';
-      kelasBox.style.fontSize = printPaper.clientWidth * 0.0196 + 'px';
-      namaBox.style.fontSize = printPaper.clientWidth * 0.0201 + 'px';
-      namaUjianBox.style.fontSize = printPaper.clientWidth * 0.00824 + 'px';
+      noUjianBox.style.fontSize = printPaper.clientWidth * NOUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'px';
+      noRuangBox.style.fontSize = printPaper.clientWidth * NORUANGBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'px';
+      kelasBox.style.fontSize = printPaper.clientWidth * KELASBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'px';
+      namaBox.style.fontSize = printPaper.clientWidth * NAMABOX_FONTSIZE_PAPER_WIDTH_RATIO + 'px';
+      namaUjianBox.style.fontSize = printPaper.clientWidth * NAMAUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'px';
 
       qrBox.style.padding = qrBox.clientWidth * 0.1 + 'px';
     }
@@ -113,11 +119,11 @@ export default function Print() {
       const qrBox = nomorMeja.querySelector('.qr');
       const namaUjianBox = nomorMeja.querySelector('.nama-ujian');
     
-      noUjianBox.style.fontSize = preferredPaperWidth * 0.0328 + 'mm';
-      noRuangBox.style.fontSize = preferredPaperWidth * 0.0206 + 'mm';
-      kelasBox.style.fontSize = preferredPaperWidth * 0.0196 + 'mm';
-      namaBox.style.fontSize = preferredPaperWidth * 0.0201 + 'mm';
-      namaUjianBox.style.fontSize = preferredPaperWidth * 0.00824 + 'mm';
+      noUjianBox.style.fontSize = preferredPaperWidth * NOUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'mm';
+      noRuangBox.style.fontSize = preferredPaperWidth * NORUANGBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'mm';
+      kelasBox.style.fontSize = preferredPaperWidth * KELASBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'mm';
+      namaBox.style.fontSize = preferredPaperWidth * NAMABOX_FONTSIZE_PAPER_WIDTH_RATIO + 'mm';
+      namaUjianBox.style.fontSize = preferredPaperWidth * NAMAUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'mm';
 
       qrBox.style.padding = qrBox.clientWidth * 0.1 + 'px';
     }
@@ -281,7 +287,7 @@ export default function Print() {
             <div className="bg-white w-3/4 mx-auto my-2 overflow-hidden shadow printPaper" style={{ padding: visibleSize.width * 0.02 }}>
               <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
                 {page.map((nomination) => 
-                <NomorMeja noUjian={nomination.no_ujian} qr="loading..." noRuang="R.01" kelas={nomination.kelas.namakelas} nama={nomination.siswa.namalengkap} />
+                <NomorMeja noUjian={nomination.no_ujian} qr="loading..." noRuang="R.01" kelas={nomination.kelas?.namakelas || 'XII RPL 1'} nama={nomination.siswa?.namalengkap} />
                 )}
               </div>
             </div>
@@ -296,7 +302,7 @@ export default function Print() {
 function NomorMeja({ noUjian, qr, noRuang, kelas, nama }) {
   useEffect(() => {
     const image = document.querySelector('#qr-' + noUjian);
-    QRCode.toDataURL(kelas.concat(noUjian), { margin: 0 }).then((url) => {
+    QRCode.toDataURL(kelas + noUjian, { margin: 0 }).then((url) => {
       image.src = url;
     });
   }, []);
