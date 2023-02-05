@@ -31,6 +31,12 @@ export default function Print() {
   const displayedNominations = nominations
     .filter((nomination) => Number(nomination.kelas_id) === Number(classId))
     .slice(indexRange[0] - 1, indexRange[1]);
+//  const displayedNominations = new Array(12).fill(0).map((_, index) => ({
+//    no_ujian: 3000 + index,
+//    siswa: { namalengkap: 'Lorem Ipsum Aliquam' },
+//    kelas: { namakelas: 'XII RPL 1' },
+//    ruang: 'R.01'
+//  }));
 
   const paperSizes = [
     {
@@ -71,8 +77,32 @@ export default function Print() {
     setFormat('A4');
   };
 
-  const resizeFonts = (scale=1) => {
+  const resizeFonts = () => {
     const mejaLabels = document.querySelectorAll('.label-meja');
+    const printPaper = document.querySelector('.printPaper');
+
+    for (let i = 0; i < mejaLabels.length; i++) {
+      const nomorMeja = mejaLabels[i];
+      const noUjianBox = nomorMeja.querySelector('.no-ujian');
+      const noRuangBox = nomorMeja.querySelector('.no-ruang');
+      const kelasBox = nomorMeja.querySelector('.kelas');
+      const namaBox = nomorMeja.querySelector('.nama');
+      const qrBox = nomorMeja.querySelector('.qr');
+      const namaUjianBox = nomorMeja.querySelector('.nama-ujian');
+    
+      noUjianBox.style.fontSize = printPaper.clientWidth * 0.0328 + 'px';
+      noRuangBox.style.fontSize = printPaper.clientWidth * 0.0206 + 'px';
+      kelasBox.style.fontSize = printPaper.clientWidth * 0.0196 + 'px';
+      namaBox.style.fontSize = printPaper.clientWidth * 0.0201 + 'px';
+      namaUjianBox.style.fontSize = printPaper.clientWidth * 0.00824 + 'px';
+
+      qrBox.style.padding = qrBox.clientWidth * 0.1 + 'px';
+    }
+  };
+
+  const resizePrintFonts = () => {
+    const mejaLabels = document.querySelectorAll('.label-meja');
+    const preferredPaperWidth = findData(['name', format], paperSizes).width;
     
     for (let i = 0; i < mejaLabels.length; i++) {
       const nomorMeja = mejaLabels[i];
@@ -83,13 +113,13 @@ export default function Print() {
       const qrBox = nomorMeja.querySelector('.qr');
       const namaUjianBox = nomorMeja.querySelector('.nama-ujian');
     
-      noUjianBox.style.fontSize = noUjianBox.clientWidth * 0.1 * scale + 'px';
-      noRuangBox.style.fontSize = noRuangBox.clientWidth * 0.15 * scale + 'px';
-      kelasBox.style.fontSize = kelasBox.clientWidth * 0.15 * scale + 'px';
-      namaBox.style.fontSize = namaBox.clientWidth * 0.06 * scale + 'px';
-      namaUjianBox.style.fontSize = namaUjianBox.clientWidth * 0.06 * scale + 'px';
+      noUjianBox.style.fontSize = preferredPaperWidth * 0.0328 + 'mm';
+      noRuangBox.style.fontSize = preferredPaperWidth * 0.0206 + 'mm';
+      kelasBox.style.fontSize = preferredPaperWidth * 0.0196 + 'mm';
+      namaBox.style.fontSize = preferredPaperWidth * 0.0201 + 'mm';
+      namaUjianBox.style.fontSize = preferredPaperWidth * 0.00824 + 'mm';
 
-      qrBox.style.padding = qrBox.clientWidth * 0.08 * scale + 'px';
+      qrBox.style.padding = qrBox.clientWidth * 0.1 + 'px';
     }
   };
 
@@ -172,7 +202,7 @@ export default function Print() {
       printPortal.appendChild(paperDesk);
       printPortal.removeAttribute('hidden');
 
-      resizeFonts();
+      resizePrintFonts();
       resizePaper();
     });
     window.addEventListener('afterprint', () => {

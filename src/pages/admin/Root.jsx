@@ -81,9 +81,9 @@ export default function AdminRoot() {
         </div>
         <nav>
           <ul>
-            {navLinks.map((navLink) => (
+            {navLinks.map((navLink, index) => (
               <li>
-                <NavLink className={generateNavLinkClasses} to={navLink.path}>
+                <NavLink className={generateNavLinkClasses} key={index} to={navLink.path}>
                   <FontAwesomeIcon className="text-primary-admin mx-4" icon={navLink.icon} />
                   <span className="font-bold">{navLink.text}</span>
                 </NavLink>
