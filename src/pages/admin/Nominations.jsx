@@ -61,6 +61,7 @@ export default function Nominations() {
 
 
   const displayedData = searchData(query, filterNominations(nominations));
+  console.log(query, displayedData);
 
   const submitData = async (event) => {
     event.preventDefault();
@@ -252,6 +253,7 @@ export default function Nominations() {
         data={displayedData}
         headings={['No Ujian', 'Nama', 'Kelas']}
         visibleKeys={['no_ujian', 'siswa.namalengkap', 'kelas.namakelas']}
+        disableEdit={true}
         onEdit={onEdit} onDelete={onDelete} />
     </div>
   );

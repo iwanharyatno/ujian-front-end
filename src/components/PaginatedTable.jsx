@@ -13,7 +13,8 @@ import { getObjectValue } from '../utils/common.js';
 export function PaginatedTable({
   data, headings, visibleKeys,
   onEdit, onDelete, deleteKey,
-  selectable, onSelectionChange, maxRows
+  selectable, onSelectionChange, maxRows,
+  disableEdit
 }) {
   const [currentPage, setCurrent] = useState(0);
   const [selectAll, setSelectAll] = useState(false);
@@ -79,9 +80,11 @@ export function PaginatedTable({
               </TableData>}
               {visibleKeys.map((visibleKey) => <TableData>{getObjectValue(datum, visibleKey)}</TableData>)}
               <TableData>
+                {!disableEdit &&
                 <button className="mr-5 text-primary-admin hover:text-primary-dark" onClick={() => onEdit(datum.id)}>
                   <FontAwesomeIcon icon={faEdit} />
                 </button>
+                }
                 <button className="text-danger hover:text-danger-dark" onClick={() => onDelete(datum[deleteKey || 'id'])}>
                   <FontAwesomeIcon icon={faTrash} />
                 </button>

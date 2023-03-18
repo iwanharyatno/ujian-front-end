@@ -1,4 +1,4 @@
-export function searchData(query, data) {
+export function searchData(query, data, searchablePath) {
   const filtered = data.filter((datum) => {
     const combinedData = Object.values(datum)
       .join(' ')
