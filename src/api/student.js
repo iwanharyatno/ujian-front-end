@@ -1,14 +1,11 @@
-import axios from 'axios';
-
 import StudentEndpoint from './endpoints/students.js';
-import Auth from './auth.js';
 
 import getAxios from '../utils/axios-initiator';
 
 const Student = {
   async getAll() {
     const result = await getAxios().get(StudentEndpoint.GET_ALL);
-    return result.data.data.data_siswa;
+    return result.data.data.data;
   },
 
   async insert(student) {

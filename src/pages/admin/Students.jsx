@@ -5,8 +5,6 @@ import {
   faInfoCircle,
   faFilter,
   faPlusCircle,
-  faEdit,
-  faTrash,
   faClose,
   faFileExcel,
   faPersonCircleCheck,
@@ -25,8 +23,6 @@ import Input from '../../components/Input.jsx';
 
 import {
   PaginatedTable,
-  TableHeading,
-  TableData
 } from '../../components/PaginatedTable.jsx';
 
 import { ModalDialog, ModalSegment } from '../../components/ModalDialog.jsx';
@@ -52,6 +48,7 @@ export default function Students() {
   const [edit, setEdit] = useState(false);
 
   const filterStudents = (source) => {
+    if (!source) return;
     let filtered = [...source];
     filters.forEach((matcher) => {
       if (!matcher) return;
@@ -287,8 +284,8 @@ export default function Students() {
       </div>
       <PaginatedTable
         data={displayedData}
-        headings={['NIS', 'Nama', 'Kelas ID']}
-        visibleKeys={['nis', 'namalengkap', 'kelas_id']}
+        headings={['NIS', 'Nama', 'Kelas']}
+        visibleKeys={['nis', 'namalengkap', 'kelases.namakelas']}
         deleteKey="user_id"
         selectable={true}
         onSelectionChange={onSelectionChange}

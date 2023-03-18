@@ -1,3 +1,5 @@
+import { formatAndSplitDate } from '../utils/common';
+
 export default function ScheduleOneDay({ date, children }) {
   const { dayName, dayNumber, month } = formatAndSplitDate(new Date(date));
 
@@ -13,18 +15,4 @@ export default function ScheduleOneDay({ date, children }) {
       </ul>
     </div>
   );
-}
-
-function formatAndSplitDate(date) {
-  const splittedDate = 
-    date.toLocaleString('id-ID', { dateStyle: 'full' })
-      .replace(/,/, '')
-      .split(' ');
-
-  return {
-    dayName: splittedDate[0],
-    dayNumber: splittedDate[1],
-    month: splittedDate[2],
-    year: splittedDate[3]
-  };
 }

@@ -1,21 +1,23 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faInfoCircle,
   faFilter,
   faPlusCircle,
-  faEdit,
-  faTrash,
   faClose,
-  faFileExcel,
 } from '@fortawesome/free-solid-svg-icons';
 
-//import Student from '../../api/student.js';
 import { default as KelasAPI } from '../../api/kelas.js';
+import { default as ScheduleAPI } from '../../api/schedule.js';
 
-import { filterDistinct, searchData, findData, updateData, deleteData } from '../../utils/common.js';
+import {
+  filterDistinct,
+  searchData,
+  findData,
+  deleteData,
+  formatAndSplitDate
+} from '../../utils/common.js';
 
 import SearchInput from '../../components/SearchInput.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
@@ -24,11 +26,12 @@ import Input from '../../components/Input.jsx';
 
 import {
   PaginatedTable,
-  TableHeading,
-  TableData
 } from '../../components/PaginatedTable.jsx';
 
 import { ModalDialog, ModalSegment } from '../../components/ModalDialog.jsx';
+
+import ScheduleOneDay from '../../components/ScheduleOneDay.jsx';
+import ScheduleSubject from '../../components/ScheduleSubject.jsx';
 
 const STATUS_PENDING = 'status-pending';
 const STATUS_SUCCESS = 'status-success';
@@ -36,13 +39,15 @@ const STATUS_FAILED = 'status-failed';
 
 export default function Schedule() {
   const [schedules, setSchedules] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState({});
   const [classes, setClasses] = useState([]);
   const [query, setQuery] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const [formStatus, setFormStatus] = useState({});
 
+  const [showModal, setShowModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+
+  const [formStatus, setFormStatus] = useState({});
   const [formData, setFormData] = useState({});
   const [edit, setEdit] = useState(false);
 
@@ -61,15 +66,21 @@ export default function Schedule() {
     });
     try {
       let updatedSchedules = [...schedules];
-      const adjustedData = {
-        tingkat: formData.tingkat,
-        jurusan: formData.jurusan,
-        tanggal: formData.tanggal,
-        mapel: mapelHolder
-      };
-      console.log(adjustedData);
+      const { dayName } = formatAndSplitDate(new Date(formData.tanggal));
+      const adjustedData = classes.filter((kelas) => (kelas.jurusan == formData.jurusan && kelas.tingkat == formData.tingkat)).map((kelas) => {
+        return {
+          hari: dayName,
+          tanggal: formData.tanggal,
+          kelas_id: kelas.id,
+          matapelajaran: mapelHolder
+        };
+      });
+
+      const result = await Promise.all(adjustedData.map(data => ScheduleAPI.insert(data)));
+
+      updatedSchedules.push(...adjustedData);
   
-      setStudents(updatedSchedules);
+      setSchedules(updatedSchedules);
       setShowModal(false);
       setFormStatus({
         type: STATUS_SUCCESS
@@ -78,30 +89,30 @@ export default function Schedule() {
   
       event.target.reset();
     } catch (error) {
-//      console.error(error.response);
-//      const messages = Object.values(error.response.data.data.message)
-//        .map(message => message[0])
-//        .join('\n').trim();
-//
+      console.error(error.response);
+      const messages = Object.values(error.response.data.data.message)
+        .map(message => message[0])
+        .join('\n').trim();
+
       setFormStatus({
         type: STATUS_FAILED,
-        message: 'not implemented yet'
+        message: messages
       });
     }
   };
 
   useEffect(() => {
-    document.title = 'Admin | Daftar Nominasi Peserta';
+    document.title = 'Admin | Jadwal Ujian';
     let retryTimeout = null;
     const fetchData = async () => {
       try {
-//        const students = await Student.getAll();
+        const schedules = await ScheduleAPI.getAll();
         const classes = await KelasAPI.getAll();
 
         if (retryTimeout) clearTimeout(retryTimeout);
 
-//        setStudents(students);
         setClasses(classes);
+        setSchedules(schedules);
       } catch (err) {
         console.error(err);
         retryTimeout = setTimeout(fetchData, 3000);
@@ -143,31 +154,42 @@ export default function Schedule() {
     setShowModal(true);
   };
 
-  const onEdit = (id) => {
-    const studentForEdit = findData(['id', id], students);
-
-    studentForEdit.kelas = studentForEdit.kelas_id;
-    studentForEdit.id = studentForEdit.user_id;
-
-    setEdit(true);
-    setFormData(studentForEdit);
-    setShowModal(true);
-  };
-
   const onDelete = async (id) => {
-    const confirmed = confirm('Yakin hapus data siswa ini?');
+    const confirmed = confirm('Yakin hapus data jadwal ini?');
 
     if (!confirmed) return;
-    await Student.delete(id);
+    await ScheduleAPI.delete(id);
 
-    setStudents(
-      deleteData(['user_id', id], students)
+    setSchedules(
+      deleteData(['id', id], schedules)
     );
   };
 
+  const onShow = (id) => {
+    if (!id) window.location.reload();
+    const selectedSchedule = findData(['id', id], schedules);
+
+    setSelectedSchedule(selectedSchedule);
+    setShowDetailModal(true);
+  };
 
   return (
     <div className="px-5 py-12">
+      <ModalDialog show={showDetailModal} onClose={() => setShowDetailModal(false)} header={(
+          <h2 className="text-2xl">
+            <FontAwesomeIcon icon={faPlusCircle} className="text-primary-admin mr-4" />
+            <span className="font-semibold text-gray-500">Detail Jadwal</span>
+          </h2>
+      )}>
+        <ModalSegment>
+          {selectedSchedule.hari &&
+          <ScheduleOneDay date={selectedSchedule.tanggal}>
+            {selectedSchedule.mata_pelajarans.map((mapel) => 
+              <ScheduleSubject time={`${mapel.mulai} - ${mapel.selesai}`} subject={mapel.nama} color="bg-gray-300" />
+            )}
+          </ScheduleOneDay>}
+        </ModalSegment>
+      </ModalDialog>
       <ModalDialog show={showModal} onClose={() => setShowModal(false)} header={(
           <h2 className="text-2xl">
             <FontAwesomeIcon icon={faPlusCircle} className="text-primary-admin mr-4" />
@@ -249,9 +271,10 @@ export default function Schedule() {
       </div>
       <PaginatedTable
         data={displayedData}
-        headings={['Tingkat', 'Jurusan']}
-        visibleKeys={['tingkat', 'jurusan']}
-        onEdit={onEdit} onDelete={onDelete} />
+        disableEdit={true}
+        headings={['Hari', 'Tanggal', 'Kelas ID']}
+        visibleKeys={['hari', 'tanggal', 'kelas_id']}
+        onDelete={onDelete} onShow={onShow} />
     </div>
   );
 }
@@ -269,11 +292,11 @@ function InputMapel({ onChange, className, mapelData }) {
 
   return (
     <div className={'grid grid-cols-2 gap-x-4 ' + className}>
-      <Input type="text" onChange={() => sendChange('nama', event.target.value)} value={mapel.nama || ''} />
+      <Input type="text" onChange={(event) => sendChange('nama', event.target.value)} value={mapel.nama || ''} />
       <div className="flex gap-x-2 items-center">
-        <Input type="time" onChange={() => sendChange('mulai', event.target.value)} value={mapel.mulai || ''} />
+        <Input type="time" onChange={(event) => sendChange('mulai', event.target.value)} value={mapel.mulai || ''} />
         <span className="text-2xl">-</span>
-        <Input type="time" onChange={() => sendChange('akhir', event.target.value)} value={mapel.akhir || ''} />
+        <Input type="time" onChange={(event) => sendChange('selesai', event.target.value)} value={mapel.selesai || ''} />
       </div>
     </div>
   );
