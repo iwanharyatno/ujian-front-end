@@ -8,23 +8,31 @@ import ScheduleSection from '../components/ScheduleSection.jsx';
 import ScheduleOneDay from '../components/ScheduleOneDay.jsx';
 import ScheduleSubject from '../components/ScheduleSubject.jsx';
 
-import AppConfig from '../config/app.js';
-
 import RoomLayouts from '../utils/room-layouts.js';
+import Student from '../api/student.js';
 
 import Cookies from 'universal-cookie';
-
-const cookies = new Cookies();
 
 export default function Dashboard() {
   const [openSchedule, setOpenSchedule] = useState(false);
   const [openRoomLayout, setOpenRoomLayout] = useState(false);
+  const [student, setStudent] = useState(false);
 
   useEffect(() => {
     document.title = 'UJIANN | Dashboard';
-  });
-
-  const studentData = cookies.get(AppConfig.USER_LOGIN);
+    let retryTimeout = null;
+    const fetchData = async() => {
+      try {
+        const result = await Student.getCurrent();
+        alert(JSON.stringify(result));
+        setStudent(result);
+        if (retryTimeout) clearTimeout(retryTimeout);
+      } catch(err) {
+        retryTimeout = setTimeout(fetchData, 500);
+      }
+    };
+    fetchData();
+  }, []);
 
   const tables = new Array(18).fill(0).map((_, index) => {
     return [
@@ -46,21 +54,21 @@ export default function Dashboard() {
         <div className="p-8 rounded-lg bg-green-400 text-white mb-8">
           <div className="mb-8">
             <p className="text-sm">Selamat datang</p>
-            <h3 className="text-2xl font-bold capitalize">{studentData.namalengkap.toLowerCase()}</h3>
+            <h3 className="text-2xl font-bold capitalize">{student.namalengkap && student.namalengkap.toLowerCase()}</h3>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex gap-4 justify-between col-span-2 bg-white/20 rounded">
               <div className="text-center p-3">
                 <h3 className="text-sm">Kelas</h3>
-                <p className="text-xl font-semibold">{studentData.kelas}</p>
+                <p className="text-xl font-semibold">{student.kelases && student.kelases.namakelas}</p>
               </div>
               <div className="text-center p-3">
                 <h3 className="text-sm">No Absen</h3>
-                <p className="text-xl font-semibold">{studentData.noabsen}</p>
+                <p className="text-xl font-semibold">{student.noabsen || 0}</p>
               </div>
               <div className="text-center p-3">
                 <h3 className="text-sm">NIS</h3>
-                <p className="text-xl font-semibold">{studentData.nis}</p>
+                <p className="text-xl font-semibold">{student.nis || 0}</p>
               </div>
             </div>
             <div className="bg-white/20 p-3 rounded">

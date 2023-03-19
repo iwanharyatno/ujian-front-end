@@ -16,11 +16,12 @@ import Input from '../../components/Input.jsx';
 
 import { findData, group } from '../../utils/common.js';
 
-const NOUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.0328;
-const NORUANGBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.0206;
-const KELASBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.0196;
-const NAMABOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.0201;
-const NAMAUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.00824;
+const NOUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.032;
+const NORUANGBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.020;
+const KELASBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.018;
+const NAMABOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.02;
+const NAMAUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO = 0.0082;
+const QRBOX_PADDING_PAPER_WIDTH_RATIO = 0.007;
 
 export default function Print() {
   const [classes, setClasses] = useState([]);
@@ -37,12 +38,6 @@ export default function Print() {
   const displayedNominations = nominations
     .filter((nomination) => Number(nomination.kelas_id) === Number(classId))
     .slice(indexRange[0] - 1, indexRange[1]);
-//  const displayedNominations = new Array(12).fill(0).map((_, index) => ({
-//    no_ujian: 3000 + index,
-//    siswa: { namalengkap: 'Lorem Ipsum Aliquam' },
-//    kelas: { namakelas: 'XII RPL 1' },
-//    ruang: 'R.01'
-//  }));
 
   const paperSizes = [
     {
@@ -102,7 +97,7 @@ export default function Print() {
       namaBox.style.fontSize = printPaper.clientWidth * NAMABOX_FONTSIZE_PAPER_WIDTH_RATIO + 'px';
       namaUjianBox.style.fontSize = printPaper.clientWidth * NAMAUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'px';
 
-      qrBox.style.padding = qrBox.clientWidth * 0.1 + 'px';
+      qrBox.style.padding = printPaper.clientWidth * QRBOX_PADDING_PAPER_WIDTH_RATIO + 'px';
     }
   };
 
@@ -125,7 +120,7 @@ export default function Print() {
       namaBox.style.fontSize = preferredPaperWidth * NAMABOX_FONTSIZE_PAPER_WIDTH_RATIO + 'mm';
       namaUjianBox.style.fontSize = preferredPaperWidth * NAMAUJIANBOX_FONTSIZE_PAPER_WIDTH_RATIO + 'mm';
 
-      qrBox.style.padding = qrBox.clientWidth * 0.1 + 'px';
+      qrBox.style.padding = preferredPaperWidth * QRBOX_PADDING_PAPER_WIDTH_RATIO + 'mm';
     }
   };
 

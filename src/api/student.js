@@ -8,6 +8,11 @@ const Student = {
     return result.data.data.data;
   },
 
+  async getCurrent() {
+    const result = await getAxios().get(StudentEndpoint.GET);
+    return result.data.data.data;
+  },
+
   async insert(student) {
     const result = await getAxios().post(StudentEndpoint.POST, student);
     return result;
