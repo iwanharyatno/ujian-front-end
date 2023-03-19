@@ -47,8 +47,8 @@ export default function Agenda() {
       printPortal.appendChild(paperDesk);
       printPortal.removeAttribute('hidden');
 
-      resizePrintFonts(printStyle);
       resizePaper();
+      resizePrintFonts(printStyle);
 
       printStyle.innerText += `
       @page {
@@ -78,8 +78,8 @@ export default function Agenda() {
       printPortal.setAttribute('hidden', true);
       printPreview.appendChild(paperDesk);
 
-      resizeFonts(printStyle);
       resizePaper();
+      resizeFonts(printStyle);
     });
   }, []);
 
@@ -100,8 +100,15 @@ export default function Agenda() {
     const tableRowHeight = printPaper.clientWidth * TABLE_ROWHEIGHT_PAPERWIDTH_RATIO;
     const signAreaHeight = printPaper.clientWidth * SIGNAREA_HEIGHT_PAPERWIDTH_RATIO;
 
+    const horizontalPadding = printPaper.clientWidth * HMARGIN_PAPERWIDTH_RATIO;
+    const verticalPadding = printPaper.clientHeight * VMARGIN_PAPERHEIGHT_RATIO;
+
     style.innerText = `
     ${DEFAULT_PRINT_STYLE}
+    .printPaper {
+      padding: ${verticalPadding}px ${horizontalPadding}px;
+    }
+
     .printPaper .title {
       font-size: ${titleFontsize}px;
     }
@@ -143,8 +150,15 @@ export default function Agenda() {
     const tableRowHeight = PAPER.width * TABLE_ROWHEIGHT_PAPERWIDTH_RATIO;
     const signAreaHeight = PAPER.width * SIGNAREA_HEIGHT_PAPERWIDTH_RATIO;
 
+    const horizontalPadding = PAPER.width * HMARGIN_PAPERWIDTH_RATIO;
+    const verticalPadding = PAPER.height * VMARGIN_PAPERHEIGHT_RATIO;
+
     style.innerText = `
     ${DEFAULT_PRINT_STYLE}
+    .printPaper {
+      padding: ${verticalPadding}mm ${horizontalPadding}mm;
+    }
+
     .printPaper .title {
       font-size: ${titleFontsize}mm;
     }
@@ -176,12 +190,8 @@ export default function Agenda() {
     const width = printPapers[0] ? printPapers[0].clientWidth : 0;
     const height = aspect * width;
 
-    const horizontalPadding = HMARGIN_PAPERWIDTH_RATIO * width;
-    const verticalPadding = VMARGIN_PAPERHEIGHT_RATIO * height;
-
     for (let i = 0; i < printPapers.length; i++) {
       const printPaper = printPapers[i];
-      printPaper.style.padding = `${verticalPadding}px ${horizontalPadding}px`;
       printPaper.style.height = height + 'px';
     }
 
