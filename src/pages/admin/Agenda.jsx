@@ -53,6 +53,7 @@ export default function Agenda() {
       printStyle.innerText += `
       @page {
         margin: 0;
+        size: landscape;
       }
 
       body #root {
