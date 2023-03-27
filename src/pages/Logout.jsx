@@ -14,10 +14,13 @@ export default function Logout() {
       try {
         const response = await Auth.logout();
 
-        if (response.data.status_code === 200) setLoggedOut(true);
-        if (retryTimeout) clearTimeout(retryTimeout);
+        if (response.data.status_code === 200) {
+          setLoggedOut(true);
+          if (retryTimeout) clearTimeout(retryTimeout);
+        }
       } catch(err) {
         retryTimeout = setTimeout(doLogout, 3000);
+        console.log(err);
       }
     }
 

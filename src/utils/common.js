@@ -92,3 +92,15 @@ export function formatAndSplitDate(date) {
     year: splittedDate[3]
   };
 }
+
+export function filterData(source, filters) {
+    if (!source) return;
+    let filtered = [...source];
+    filters.forEach((matcher) => {
+      if (!matcher) return;
+      const [key, value] = matcher;
+      filtered = filtered.filter((datum) => getObjectValue(datum, key) == value);
+    });
+
+    return filtered;
+  }

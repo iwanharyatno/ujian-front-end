@@ -1,22 +1,87 @@
 import { useEffect, useState } from 'react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDoorClosed, faCalendar, faBarcode } from '@fortawesome/free-solid-svg-icons';
+import {
+  faDoorClosed,
+  faCalendar,
+  faBarcode,
+  faCheckCircle,
+  faTimesCircle,
+  faRotateRight
+} from '@fortawesome/free-solid-svg-icons';
 
 import CardButton from '../components/CardButton.jsx';
 import ScheduleSection from '../components/ScheduleSection.jsx';
 import ScheduleOneDay from '../components/ScheduleOneDay.jsx';
 import ScheduleSubject from '../components/ScheduleSubject.jsx';
 
+import FloatingButton from '../components/FloatingButton.jsx';
+import OffCanvas from '../components/OffCanvas.jsx';
+import QRCodeScanner from '../components/QRCodeScanner.jsx';
+
 import RoomLayouts from '../utils/room-layouts.js';
 import Student from '../api/student.js';
 
-import Cookies from 'universal-cookie';
+const STATUS_SUCCESS = 'success';
+const STATUS_PENDING = 'pending';
+const STATUS_FAILED = 'failed';
 
 export default function Dashboard() {
   const [openSchedule, setOpenSchedule] = useState(false);
   const [openRoomLayout, setOpenRoomLayout] = useState(false);
   const [student, setStudent] = useState(false);
+
+  const [offCanvasOpen, setOffCanvasOpen] = useState(false);
+  const [scanStatus, setScanStatus] = useState(null);
+  
+  const noujian = (student) ? '' + student.kelases?.tingkat + student.kelas_id + student.noabsen : '0';
+
+  const scanSuccess = (decodedText, decodedResult) => {
+    const expectedResult = '' + student.nis + noujian;
+    if (decodedText === expectedResult) {
+      setScanStatus(STATUS_SUCCESS);
+    } else {
+      setScanStatus(STATUS_FAILED);
+    }
+  }
+
+  const scanClosing = () => {
+    setOffCanvasOpen(false);
+    setScanStatus(null);
+  };
+
+  const renderFragmentFromStatus = status => {
+    switch(status) {
+      case STATUS_SUCCESS:
+        return (
+          <>
+            <FontAwesomeIcon icon={faCheckCircle} className="block mx-auto my-12 text-8xl text-green-400"/>
+            <p className="text-center mt-3 mx-4 mb-12 text-gray-400">Verifikasi kehadiran berhasil!</p>
+          </>
+        );
+      case STATUS_PENDING:
+        return <div className="text-center">Please Wait</div>;
+      case STATUS_FAILED:
+        return (
+          <>
+            <FontAwesomeIcon icon={faTimesCircle} className="block mx-auto my-12 text-8xl text-red-400"/>
+            <p className="text-center mt-3 mx-4 mb-12 text-gray-400">Verifikasi kehadiran gagal.</p>
+            <button type="button" className="p-5 bg-white w-full" onClick={() => setScanStatus(null)}>
+              <FontAwesomeIcon icon={faRotateRight} className="block mx-auto my-2 text-primary"/>
+              <span className="mb-2">Scan ulang</span>
+            </button>
+          </>
+        );
+      default:
+        return (
+          <>
+            <QRCodeScanner onScanSuccess={scanSuccess} start={offCanvasOpen} />
+            <p className="text-center mt-3 mx-4 mb-5 text-gray-400">Silahkan scan QR yang ada di meja anda untuk memverifikasi kehadiran.</p>
+          </>
+        );
+    }
+  };
+
 
   useEffect(() => {
     document.title = 'UJIANN | Dashboard';
@@ -24,7 +89,7 @@ export default function Dashboard() {
     const fetchData = async() => {
       try {
         const result = await Student.getCurrent();
-        alert(JSON.stringify(result));
+        console.log(result);
         setStudent(result);
         if (retryTimeout) clearTimeout(retryTimeout);
       } catch(err) {
@@ -79,7 +144,7 @@ export default function Dashboard() {
             <div className="bg-white/20 p-3 rounded">
               <FontAwesomeIcon icon={faDoorClosed} className="text-2xl"/>
               <h3>No Ujian</h3>
-              <p className="text-2xl font-bold">3001</p>
+              <p className="text-2xl font-bold">{noujian}</p>
             </div>
           </div>
         </div>
@@ -116,6 +181,11 @@ export default function Dashboard() {
           <ScheduleSubject time="07.30 - 09.00" subject="Bahasa Jepang" color="bg-yellow-400" />
         </ScheduleOneDay>
       </ScheduleSection>
+      <OffCanvas onOverlayClick={scanClosing} open={offCanvasOpen} colors="bg-gray-100">
+        <h2 className="text-2xl my-6 text-center font-bold text-blue-500">Verifikasi Kehadiran</h2>
+        { renderFragmentFromStatus(scanStatus) }
+      </OffCanvas>
+      <FloatingButton icon={faBarcode} position="bottom-9 right-3" className="lg:hidden" onClick={() => setOffCanvasOpen(true)}/>
     </div>
   );
 }

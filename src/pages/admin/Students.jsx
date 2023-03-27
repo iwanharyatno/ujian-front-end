@@ -14,7 +14,15 @@ import Student from '../../api/student.js';
 import Nomination from '../../api/nomination.js';
 import { default as KelasAPI } from '../../api/kelas.js';
 
-import { filterDistinct, searchData, findData, updateData, deleteData, getObjectValue } from '../../utils/common.js';
+import {
+  filterDistinct,
+  searchData,
+  findData,
+  updateData,
+  deleteData,
+  getObjectValue,
+  filterData
+} from '../../utils/common.js';
 
 import SearchInput from '../../components/SearchInput.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
@@ -47,19 +55,7 @@ export default function Students() {
   const [formData, setFormData] = useState({});
   const [edit, setEdit] = useState(false);
 
-  const filterStudents = (source) => {
-    if (!source) return;
-    let filtered = [...source];
-    filters.forEach((matcher) => {
-      if (!matcher) return;
-      const [key, value] = matcher;
-      filtered = filtered.filter((datum) => getObjectValue(datum, key) == value);
-    });
-
-    return filtered;
-  };
-
-  const displayedData = searchData(query, filterStudents(students));
+  const displayedData = searchData(query, filterData(students, filters));
 
   const submitData = async (event) => {
     event.preventDefault();
@@ -341,7 +337,7 @@ function FilterMenu({ onClose, show, onChange }) {
           <option value="">Kelas</option>
           {classes.map((kelas) => <option value={kelas.id}>{kelas.namakelas}</option>)}
         </select>
-        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4" onChange={() => updateMatchers(1, ['kelas.jurusan', event.target.value])}>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4" onChange={() => updateMatchers(1, ['kelases.jurusan', event.target.value])}>
           <option value="">Jurusan</option>
           {filterDistinct(classes.map((kelas) => kelas.jurusan)).map((jurusan) => <option value={jurusan}>{jurusan}</option>)}
         </select>

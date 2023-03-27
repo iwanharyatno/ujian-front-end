@@ -6,7 +6,6 @@ export default function QRCodeScanner(props) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!props.start) return;
     if (error) return;
 
     const scannerApi = new Html5Qrcode('qr-scanner');
@@ -16,12 +15,18 @@ export default function QRCodeScanner(props) {
       aspectRatio: 1
     };
 
+    const cancelScan = () => {
+      if (!props.start) {
+        scannerApi.stop().then(data => {}).catch(e => {});
+      }
+    };
+
     Html5Qrcode.getCameras().then(devices => {
       if (devices && devices.length !== 0) {
         const cameraId = devices[1].id;
-        scannerApi.start(cameraId, scannerConfig, props.onScanSuccess, props.onScanFailed);
+        scannerApi.start(cameraId, scannerConfig, props.onScanSuccess, props.onScanFailed).then(() => cancelScan()).catch(() => cancelScan());
       }
-    }).catch(e => setError(e));
+    }).catch((e) => setError(e));
 
     return () => {
       if (scannerApi.getState() === Html5QrcodeScannerState.SCANNING) scannerApi.stop().then(data => {}).catch(e => {});

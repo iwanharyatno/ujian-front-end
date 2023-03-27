@@ -16,7 +16,8 @@ import {
   searchData,
   findData,
   deleteData,
-  formatAndSplitDate
+  formatAndSplitDate,
+  filterData
 } from '../../utils/common.js';
 
 import SearchInput from '../../components/SearchInput.jsx';
@@ -47,13 +48,15 @@ export default function Schedule() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
+  const [filters, setFilters] = useState([]);
+
   const [formStatus, setFormStatus] = useState({});
   const [formData, setFormData] = useState({});
   const [edit, setEdit] = useState(false);
 
   const [mapelHolder, setMapelHolder] = useState([]);
 
-  const displayedData = searchData(query, schedules);
+  const displayedData = searchData(query, filterData(schedules, filters));
 
   const filterJurusan = (tingkat) => filterDistinct(classes.filter((kelas) => kelas.tingkat === Number(tingkat))
                   .map((filteredKelas) => filteredKelas.jurusan));
@@ -265,7 +268,7 @@ export default function Schedule() {
         <SearchInput onSearch={setQuery}/>
         <div className="relative">
           <ActionButton text="Filter" icon={faFilter} color="bg-warning text-white hover:bg-warning-dark focus:ring focus:ring-warning-fade" onClick={() => setShowFilter(true)} />
-          <FilterMenu show={showFilter} onClose={() => setShowFilter(false)} />
+          <FilterMenu show={showFilter} onClose={() => setShowFilter(false)} onChange={(matchers) => setFilters(matchers)} />
         </div>
         <ActionButton text="Tambah" icon={faPlusCircle} color="bg-primary-admin text-white hover:bg-primary-admin-dark focus:ring focus:ring-primary-fade" onClick={onAdd} />
       </div>
@@ -302,8 +305,9 @@ function InputMapel({ onChange, className, mapelData }) {
   );
 }
 
-function FilterMenu({ onClose, show }) {
+function FilterMenu({ onClose, show, onChange }) {
   const [classes, setClasses] = useState([]);
+  const [macthers, setMatchers] = useState(new Array(2));
 
   useEffect(() => {
     const fetchKelas = async () => {
@@ -318,6 +322,15 @@ function FilterMenu({ onClose, show }) {
     fetchKelas();
   }, []);
 
+  const updateMatchers = (index, matcher) => {
+    const updatedMatchers = [...macthers];
+    updatedMatchers[index] = matcher[1] ? matcher : null;
+
+    setMatchers(updatedMatchers);
+
+    if (onChange) onChange(updatedMatchers);
+  };
+
   return (
     <div className={'absolute top-100 translate-y-1 w-64 bg-white border-2 border-gray-300 p-4 ' + (show ? 'block' : 'hidden')}>
       <div className="flex justify-between items-center mb-4">
@@ -327,12 +340,12 @@ function FilterMenu({ onClose, show }) {
         </button>
       </div>
       <div>
-        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-2">
-          <option>Kelas</option>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-2" onChange={() => updateMatchers(0, ['kelas_id', event.target.value])}>
+          <option value="">Kelas</option>
           {classes.map((kelas) => <option value={kelas.id}>{kelas.namakelas}</option>)}
         </select>
-        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4">
-          <option>Jurusan</option>
+        <select className="block w-full bg-transparent border border-gray-400 p-2 rounded mb-4" onChange={() => updateMatchers(1, ['kelas.jurusan', event.target.value])}>
+          <option value="">Jurusan</option>
           {filterDistinct(classes.map((kelas) => kelas.jurusan)).map((jurusan) => <option value={jurusan}>{jurusan}</option>)}
         </select>
       </div>

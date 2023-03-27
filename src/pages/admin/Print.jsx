@@ -282,7 +282,13 @@ export default function Print() {
             <div className="bg-white w-3/4 mx-auto my-2 overflow-hidden shadow printPaper" style={{ padding: visibleSize.width * 0.02 }}>
               <div className="grid grid-cols-2" style={{ gap: visibleSize.width * 0.02 }}>
                 {page.map((nomination) => 
-                <NomorMeja noUjian={nomination.no_ujian} qr="loading..." noRuang="R.01" kelas={nomination.kelas?.namakelas || 'XII RPL 1'} nama={nomination.siswa?.namalengkap} />
+                <NomorMeja
+                  noUjian={nomination.no_ujian}
+                  qr="loading..."
+                  noRuang="R.01"
+                  kelas={nomination.kelas?.namakelas || ''}
+                  nama={nomination.siswa?.namalengkap}
+                  nis={nomination.siswa?.nis} />
                 )}
               </div>
             </div>
@@ -294,10 +300,10 @@ export default function Print() {
   );
 }
 
-function NomorMeja({ noUjian, qr, noRuang, kelas, nama }) {
+function NomorMeja({ noUjian, qr, noRuang, kelas, nama, nis }) {
   useEffect(() => {
     const image = document.querySelector('#qr-' + noUjian);
-    QRCode.toDataURL(kelas + noUjian, { margin: 0 }).then((url) => {
+    QRCode.toDataURL(nis + '' + noUjian, { margin: 0 }).then((url) => {
       image.src = url;
     });
   }, []);
