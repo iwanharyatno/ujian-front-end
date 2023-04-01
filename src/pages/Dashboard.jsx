@@ -21,6 +21,7 @@ import QRCodeScanner from '../components/QRCodeScanner.jsx';
 
 import RoomLayouts from '../utils/room-layouts.js';
 import Student from '../api/student.js';
+import Auth from '../api/auth.js';
 
 const STATUS_SUCCESS = 'success';
 const STATUS_PENDING = 'pending';
@@ -34,12 +35,12 @@ export default function Dashboard() {
   const [offCanvasOpen, setOffCanvasOpen] = useState(false);
   const [scanStatus, setScanStatus] = useState(null);
   
-  const noujian = (student) ? '' + student.kelases?.tingkat + student.kelas_id + student.noabsen : '0';
-
-  const scanSuccess = (decodedText, decodedResult) => {
-    const expectedResult = '' + student.nis + noujian;
+  const scanSuccess = (scanner, decodedText, decodedResult) => {
+    const expectedResult = student.nominasis.no_ujian;
     if (decodedText === expectedResult) {
-      setScanStatus(STATUS_SUCCESS);
+      scanner.stop();
+      setScanStatus(STATUS_PENDING);
+      Auth.present().then((result) => result.json()).then((data) => alert(JSON.stringify(data))).catch(alert);
     } else {
       setScanStatus(STATUS_FAILED);
     }
@@ -60,7 +61,7 @@ export default function Dashboard() {
           </>
         );
       case STATUS_PENDING:
-        return <div className="text-center">Please Wait</div>;
+        return <div className="text-center">Mohon Tunggu</div>;
       case STATUS_FAILED:
         return (
           <>
@@ -89,7 +90,6 @@ export default function Dashboard() {
     const fetchData = async() => {
       try {
         const result = await Student.getCurrent();
-        console.log(result);
         setStudent(result);
         if (retryTimeout) clearTimeout(retryTimeout);
       } catch(err) {
@@ -99,13 +99,7 @@ export default function Dashboard() {
     fetchData();
   }, []);
 
-  const tables = new Array(18).fill(0).map((_, index) => {
-    return [
-      (1001 + index),
-      (2001 + index),
-      (3001 + index)
-    ]
-  });
+  const tables = [[]];
   RoomLayouts.init({
     cols: 4,
     tables,
@@ -119,32 +113,32 @@ export default function Dashboard() {
         <div className="p-8 rounded-lg bg-green-400 text-white mb-8">
           <div className="mb-8">
             <p className="text-sm">Selamat datang</p>
-            <h3 className="text-2xl font-bold capitalize">{student.namalengkap && student.namalengkap.toLowerCase()}</h3>
+            <h3 className="text-2xl font-bold capitalize">{student.namalengkap && student.namalengkap.toLowerCase() || '-'}</h3>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex gap-4 justify-between col-span-2 bg-white/20 rounded">
               <div className="text-center p-3">
                 <h3 className="text-sm">Kelas</h3>
-                <p className="text-xl font-semibold">{student.kelases && student.kelases.namakelas}</p>
+                <p className="text-xl font-semibold">{student.kelases && student.kelases.namakelas || '-'}</p>
               </div>
               <div className="text-center p-3">
                 <h3 className="text-sm">No Absen</h3>
-                <p className="text-xl font-semibold">{student.noabsen || 0}</p>
+                <p className="text-xl font-semibold">{student.noabsen || '-'}</p>
               </div>
               <div className="text-center p-3">
                 <h3 className="text-sm">NIS</h3>
-                <p className="text-xl font-semibold">{student.nis || 0}</p>
+                <p className="text-xl font-semibold">{student.nis || '-'}</p>
               </div>
             </div>
             <div className="bg-white/20 p-3 rounded">
               <FontAwesomeIcon icon={faDoorClosed} className="text-2xl"/>
               <h3>Ruangan</h3>
-              <p className="text-2xl font-bold">01</p>
+              <p className="text-2xl font-bold">{student.ruangans && student.ruangans.no_ruangan || '-'}</p>
             </div>
             <div className="bg-white/20 p-3 rounded">
               <FontAwesomeIcon icon={faDoorClosed} className="text-2xl"/>
               <h3>No Ujian</h3>
-              <p className="text-2xl font-bold">{noujian}</p>
+              <p className="text-2xl font-bold">{student.nominasis && student.nominasis.no_ujian || '-'}</p>
             </div>
           </div>
         </div>
@@ -156,30 +150,9 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <RoomLayout tables={RoomLayouts.snakeX(tables)} open={openRoomLayout} onClose={() => setOpenRoomLayout(false)} />
+      <RoomLayout tables={RoomLayouts.snakeX()} open={openRoomLayout} onClose={() => setOpenRoomLayout(false)} forClass={student.kelases && student.kelases.namakelas} />
 
-      <ScheduleSection forClass="XII RPL 1" className={'fixed md:static top-0 left-0 w-full md:w-auto h-full md:h-[32rem] bg-white md:bg-gray-100/50 md:ml-8 md:rounded-2xl md:border-4 overflow-scroll pb-5 transition-transform ' + (openSchedule ? 'scale-100' : 'scale-0 md:scale-100')} onClose={() => setOpenSchedule(false)}>
-        <ScheduleOneDay date="2022-11-14">
-          <ScheduleSubject time="07.30 - 09.00" subject="Pendidikan Agama Islam" color="bg-yellow-400" state="attended" />
-          <ScheduleSubject time="09.30 - 11.00" subject="Bahasa Jawa" color="bg-primary" state="attended" />
-          <ScheduleSubject time="12.30 - 14.00" subject="Basis Data" color="bg-green-400" state="attended" />
-        </ScheduleOneDay>
-        <ScheduleOneDay date="2022-11-15">
-          <ScheduleSubject time="07.30 - 09.00" subject="Pendidikan Pancasila dan Kewarganegaraan" color="bg-yellow-400" state="skipped" />
-          <ScheduleSubject time="09.30 - 11.00" subject="Bahasa Indonesia" color="bg-primary" state="attended" />
-          <ScheduleSubject time="12.30 - 14.00" subject="Produk Kreatif dan Kewirausahaan" color="bg-green-400" state="attended" />
-        </ScheduleOneDay>
-        <ScheduleOneDay date="2022-11-16">
-          <ScheduleSubject time="07.30 - 09.00" subject="Matematika" color="bg-yellow-400" state="attended" />
-          <ScheduleSubject time="09.30 - 11.00" subject="Pemrograman Berorientasi Objek" color="bg-primary" state="attended" />
-        </ScheduleOneDay>
-        <ScheduleOneDay date="2022-11-17">
-          <ScheduleSubject time="07.30 - 09.00" subject="Bahasa Inggris" color="bg-yellow-400" />
-          <ScheduleSubject time="09.30 - 11.00" subject="Pemrograman Web dan Perangkat Bergerak" color="bg-primary"  />
-        </ScheduleOneDay>
-        <ScheduleOneDay date="2022-11-18">
-          <ScheduleSubject time="07.30 - 09.00" subject="Bahasa Jepang" color="bg-yellow-400" />
-        </ScheduleOneDay>
+      <ScheduleSection forClass={student.kelases && student.kelases.namakelas} className={'fixed md:static top-0 left-0 w-full md:w-auto h-full md:h-[32rem] bg-white md:bg-gray-100/50 md:ml-8 md:rounded-2xl md:border-4 overflow-scroll pb-5 transition-transform ' + (openSchedule ? 'scale-100' : 'scale-0 md:scale-100')} onClose={() => setOpenSchedule(false)}>
       </ScheduleSection>
       <OffCanvas onOverlayClick={scanClosing} open={offCanvasOpen} colors="bg-gray-100">
         <h2 className="text-2xl my-6 text-center font-bold text-blue-500">Verifikasi Kehadiran</h2>
@@ -190,7 +163,7 @@ export default function Dashboard() {
   );
 }
 
-function RoomLayout({ open, onClose, tables }) {
+function RoomLayout({ open, onClose, tables, forClass }) {
   let scroll = 0;
   let touchPos = null;
   let latestTransform = 0;
@@ -250,19 +223,19 @@ function RoomLayout({ open, onClose, tables }) {
           <div className="bg-gray-400 h-2 w-1/4 rounded mx-auto"></div>
         </div>
         <div className="overflow-scroll pb-4" onScroll={handleScroll}>
-          <h2 className="text-center text-2xl font-bold">Ruangan 01</h2>
+          <h2 className="text-center text-2xl font-bold">Ruangan -</h2>
           <div className="flex gap-4 mx-12 mt-8 bg-primary text-white p-4 rounded-xl shadow-md">
             <div>
               <p className="font-light">Kelas</p>
-              <p className="font-bold">XII RPL 1</p>
+              <p className="font-bold">{forClass}</p>
             </div>
             <div className="grow">
-              <p className="font-light">Code Ruangan</p>
-              <p className="font-bold">C1 01</p>
+              <p className="font-light">Kode Ruangan</p>
+              <p className="font-bold">-</p>
             </div>
             <div>
               <p className="font-light">Absen</p>
-              <p className="font-bold">1-18</p>
+              <p className="font-bold">-</p>
             </div>
           </div>
           <div className="grid grid-cols-4 mt-8 mx-4 gap-5 justify-center">

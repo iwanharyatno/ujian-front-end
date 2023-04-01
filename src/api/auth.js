@@ -48,6 +48,12 @@ const Auth = {
     const user = cookies.get(AppConfig.USER_LOGIN);
 
     return user;
+  },
+
+  async present() {
+    const result = await getAxios().get(UserEndpoint.ATTENDANCE);
+
+    return result;
   }
 };
 
