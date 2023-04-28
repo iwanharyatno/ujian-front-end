@@ -8,6 +8,23 @@ import SpinnerLabel from '../components/SpinnerLabel.jsx';
 export default function Logout() {
   const [loggedOut, setLoggedOut] = useState(false);
 
+  const getRedirectUrl = () => {
+    const current = location.href;
+
+    const params = current.substring(current.indexOf('?') + 1, current.length)
+      .split('&')
+      .map(p => {
+        const param = p.split('=');
+        const result = {};
+
+        result[param[0]] = param[1];
+
+        return result;
+      });
+
+    return params[0]['redirect'];
+  };
+
   useEffect(() => {
     let retryTimeout = null;
     const doLogout = async () => {
@@ -32,7 +49,7 @@ export default function Logout() {
   return (
     <div>
       {loggedOut 
-        ? <Navigate to='/login' />
+        ? <Navigate to={getRedirectUrl() ?? '/login'} />
         : <SpinnerLabel text="Logging out..." fullscreen/>
       }
     </div>

@@ -8,6 +8,7 @@ import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 import FormInput from '../../components/FormInput.jsx';
+import FormSelect from '../../components/FormSelect.jsx';
 import Button from '../../components/Button.jsx';
 
 import AdminAuth from '../../api/admin-auth.js';
@@ -17,6 +18,25 @@ import AppConfig from '../../config/app.js';
 export default function AdminLogin() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [status, setStatus] = useState(null);
+
+  const [ujianId, setUjianId] = useState(1);
+
+  const getRedirectUrl = () => {
+    const current = location.href;
+
+    const params = current.substring(current.indexOf('?') + 1, current.length)
+      .split('&')
+      .map(p => {
+        const param = p.split('=');
+        const result = {};
+
+        result[param[0]] = param[1];
+
+        return result;
+      });
+
+    return params[0]['redirect'];
+  };
 
   const submitFormAsync = async (event) => {
     event.preventDefault();
@@ -31,6 +51,7 @@ export default function AdminLogin() {
       await AdminAuth.login({
         username: formData.get('username'),
         password: formData.get('password'),
+        ujianId: ujianId
       });
 
       setStatus({ authenticated: true });
@@ -51,7 +72,7 @@ export default function AdminLogin() {
 
   return (
     <div>
-      { status?.authenticated ? <Navigate to="/admin" replace="true" /> : '' }
+      { status?.authenticated ? <Navigate to={getRedirectUrl() ?? `/admin/classes`} replace="true" /> : '' }
       <div className="flex-col w-full h-60 text-center bg-sky-700"></div>
       <div className="bg-white rounded-xl p-8 -mt-12 md:shadow-lg mx-auto max-w-md">
         <h1 className="text-xl text-center mt-3 mb-14 font-bold text-primary">Admin Login</h1>
@@ -73,7 +94,13 @@ export default function AdminLogin() {
             iconStart={faLock}
             iconEnd={passwordVisible ? faEyeSlash : faEye}
             iconEndClick={() => setPasswordVisible(!passwordVisible)}
+            className="mb-5"
             required />
+          <span className="mb-2 block">Jenis Ujian</span>
+          <FormSelect onChange={(e) => setUjianId(e.target.value)} fullwidth>
+            <option value="1">PAS GASAL 2022/2023</option>
+            <option value="2">PSAJ 2022/2023</option>
+          </FormSelect>
           <Button
             type="submit"
             text="Login"

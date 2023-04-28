@@ -35,7 +35,6 @@ export default function Login() {
 
       setStatus({ authenticated: true });
     } catch (error) {
-      console.log(error);
       setStatus({
         color: 'red-400',
         content: 'Login Gagal'

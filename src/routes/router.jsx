@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
 
 import Root from '../pages/Root.jsx';
 import Dashboard from '../pages/Dashboard.jsx';

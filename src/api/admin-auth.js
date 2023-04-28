@@ -9,7 +9,7 @@ const cookies = new Cookies();
 const DAY_IN_MILLISECONDS = 24 * 3600 * 1000;
 
 const AdminAuth = {
-  async login({ username, password }) {
+  async login({ username, password, ujianId }) {
     const credentials = { username, password };
     const result = await axios.post(AdminEndpoint.LOGIN, credentials);
 
@@ -24,19 +24,22 @@ const AdminAuth = {
       path: '/',
       expires: cookieExpire
     });
+    cookies.set(AppConfig.UJIAN_ID, ujianId + '|' + cookieExpire.getTime(), {
+      path: '/',
+      expires: cookieExpire
+    });
 
     return result;
   },
 
   async logout() {
-    const cookieExpire = new Date(
-      new Date().getTime() - DAY_IN_MILLISECONDS * 31
-    );
     const adminToken = cookies.get(AppConfig.USER_LOGIN).token;
 
-    cookies.set(AppConfig.USER_LOGIN, '', {
+    cookies.remove(AppConfig.USER_LOGIN, {
       path: '/',
-      expires: cookieExpire,
+    });
+    cookies.remove(AppConfig.UJIAN_ID, {
+      path: '/',
     });
 
     const logoutConfig = {

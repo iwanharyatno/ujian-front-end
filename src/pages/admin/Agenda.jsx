@@ -44,6 +44,7 @@ export default function Agenda() {
     const printPortal = document.querySelector('#printPortal');
 
     window.addEventListener('beforeprint', () => {
+      printPortal.innerHTML = '';
       printPortal.appendChild(paperDesk);
       printPortal.removeAttribute('hidden');
 

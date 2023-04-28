@@ -36,9 +36,11 @@ const Auth = {
     const cookieExpire = new Date(
       new Date().getTime() - DAY_IN_MILLISECONDS
     );
-    cookies.set(AppConfig.USER_LOGIN, '', {
+    cookies.remove(AppConfig.USER_LOGIN, {
       path: '/',
-      expires: cookieExpire,
+    });
+    cookies.remove(AppConfig.UJIAN_ID, {
+      path: '/',
     });
 
     return logoutRequest;

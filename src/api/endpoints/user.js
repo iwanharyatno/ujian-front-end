@@ -1,6 +1,6 @@
 import AppConfig from '../../config/app.js';
 
-const BASE = AppConfig.BASE_API_URL + '/user';
+const BASE = AppConfig.BASE_API_URL + '/siswa';
 
 const UserEndpoint = {
   GET_ALL__POST: BASE,

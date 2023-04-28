@@ -13,7 +13,7 @@ export default function AuthProtected({ children, admin, redirect }) {
   return ( isAllowed
     ? children
     : (
-      <Navigate to={redirect || '/login'} />
+      <Navigate to={(redirect || '/login') + `?redirect=${location.pathname}`} />
     )
   );
 }
